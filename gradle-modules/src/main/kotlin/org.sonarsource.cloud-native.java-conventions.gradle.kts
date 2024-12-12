@@ -1,21 +1,29 @@
 /*
- * SonarQube Text Plugin
- * Copyright (C) 2021-2024 SonarSource SA
+ * SonarSource Cloud Native Gradle Modules
+ * Copyright (C) 2024-2024 SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Sonar Source-Available License Version 1, as published by SonarSource SA.
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
- * See the Sonar Source-Available License for more details.
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
  *
- * You should have received a copy of the Sonar Source-Available License
- * along with this program; if not, see https://sonarsource.com/license/ssal/
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED
+import org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED
+
 plugins {
     `java-library`
+    jacoco
 }
 
 java {
@@ -34,4 +42,32 @@ tasks.withType<Javadoc> {
     options {
         (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
     }
+}
+
+tasks.withType<Test> {
+    useJUnitPlatform()
+
+    testLogging {
+        // log the full stack trace (default is the 1st line of the stack trace)
+        exceptionFormat = TestExceptionFormat.FULL
+        // verbose log for failed and skipped tests (by default the name of the tests are not logged)
+        events(SKIPPED, FAILED)
+    }
+}
+
+jacoco {
+    toolVersion = "0.8.12"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+        csv.required.set(false)
+        html.required.set(providers.environmentVariable("CI").map { it.toBoolean().not() }.orElse(true))
+    }
+}
+
+plugins.withType<JacocoPlugin> {
+    tasks["test"].finalizedBy("jacocoTestReport")
 }
