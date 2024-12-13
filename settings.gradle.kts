@@ -21,11 +21,30 @@ pluginManagement {
     }
 }
 
+plugins {
+    id("com.gradle.develocity") version "3.18.2"
+}
+
 rootProject.name = "cloud-native-gradle-modules"
 include("gradle-modules")
 
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+    }
+}
+
+develocity {
+    server = "https://develocity.sonar.build"
+}
+
+val isCI = System.getenv("CI") != null
+buildCache {
+    local {
+        isEnabled = !isCI
+    }
+    remote(develocity.buildCache) {
+        isEnabled = true
+        isPush = isCI
     }
 }
