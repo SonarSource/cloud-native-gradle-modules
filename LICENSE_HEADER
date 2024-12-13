@@ -1,6 +1,6 @@
 /*
  * SonarSource Cloud Native Gradle Modules
- * Copyright (C) 2024-2024 SonarSource SA
+ * Copyright (C) 2024-$YEAR SonarSource SA
  * mailto:info AT sonarsource DOT com
  *
  * This program is free software; you can redistribute it and/or
@@ -14,15 +14,3 @@
  * You should have received a copy of the Sonar Source-Available License
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
-plugins {
-    `kotlin-dsl`
-    alias(libs.plugins.spotless)
-}
-
-val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
-spotless {
-    kotlinGradle {
-        target("*.gradle.kts", "src/**/*.gradle.kts")
-        licenseHeaderFile(rootProject.file("LICENSE_HEADER"), kotlinGradleDelimiter).updateYearWithLatest(true)
-    }
-}
