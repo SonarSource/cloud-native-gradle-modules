@@ -24,7 +24,6 @@ import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.provider.ProviderFactory
-import org.gradle.internal.extensions.core.extra
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType

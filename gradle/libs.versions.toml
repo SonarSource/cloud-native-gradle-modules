@@ -2,11 +2,13 @@
 spotless-gradle = "6.25.0"
 blowdryer-gradle = "1.7.1"
 develocity = "3.18.2"
+jfrog-gradle = "5.2.5"
 
 [libraries]
 diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
 diffplug-blowdryer-setup = { module = "com.diffplug.blowdryerSetup:com.diffplug.blowdryerSetup.gradle.plugin", version.ref = "blowdryer-gradle" }
 develocity = { module = "com.gradle.develocity:com.gradle.develocity.gradle.plugin", version.ref = "develocity" }
+jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
 
 [plugins]
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless-gradle" }

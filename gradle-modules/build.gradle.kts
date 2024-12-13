@@ -24,6 +24,9 @@ dependencies {
     implementation(libs.develocity)
     implementation(libs.diffplug.spotless)
     implementation(libs.diffplug.blowdryer.setup)
+    implementation(libs.jfrog.buildinfo.gradle) {
+        exclude("ch.qos.logback", "logback-core")
+    }
 }
 
 gradlePlugin {
