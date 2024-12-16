@@ -51,7 +51,8 @@ spotless {
                 )
             )
         licenseHeaderFile(licenseHeaderFile).updateYearWithLatest(true)
-        targetExclude("*/generated-sources/**", "*/generated-src/**")
+        targetExclude("*/generated-sources/**", "*/generated-src/**", "*/generated/sources/**")
+        toggleOffOn()
     }
     kotlinGradle {
         licenseHeaderFile(licenseHeaderFile, kotlinGradleDelimiter).updateYearWithLatest(true)
