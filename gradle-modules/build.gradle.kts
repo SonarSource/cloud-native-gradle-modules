@@ -19,9 +19,21 @@ plugins {
     alias(libs.plugins.spotless)
 }
 
-val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
+dependencies {
+    implementation(libs.diffplug.spotless)
+    implementation(libs.diffplug.blowdryer)
+}
+
 spotless {
+    kotlin {
+        ktlint().setEditorConfigPath("$rootDir/.editorconfig")
+        targetExclude("build/**")
+        licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
+    }
+
+    val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
     kotlinGradle {
+        ktlint().setEditorConfigPath("$rootDir/.editorconfig")
         target("*.gradle.kts", "src/**/*.gradle.kts")
         licenseHeaderFile(rootProject.file("LICENSE_HEADER"), kotlinGradleDelimiter).updateYearWithLatest(true)
     }
