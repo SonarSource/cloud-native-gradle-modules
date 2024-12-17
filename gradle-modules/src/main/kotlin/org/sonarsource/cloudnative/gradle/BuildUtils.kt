@@ -16,8 +16,10 @@
  */
 package org.sonarsource.cloudnative.gradle
 
-import org.gradle.api.provider.Property
+import org.gradle.api.Project
 
-interface CodeStyleConvention {
-    val editorConfigPath: Property<String>
+fun Project.signingCondition(): Boolean {
+    val branch = System.getenv()["CIRRUS_BRANCH"] ?: ""
+    return (branch == "master" || branch.matches("branch-[\\d.]+".toRegex())) &&
+        gradle.taskGraph.hasTask(":artifactoryPublish")
 }
