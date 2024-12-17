@@ -19,11 +19,8 @@ package org.sonarsource.cloudnative.gradle
 import com.gradle.develocity.agent.gradle.DevelocityConfiguration
 import javax.inject.Inject
 import org.gradle.api.Plugin
-import org.gradle.api.artifacts.dsl.RepositoryHandler
-import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.initialization.Settings
 import org.gradle.api.internal.file.FileOperations
-import org.gradle.api.provider.ProviderFactory
 import org.gradle.kotlin.dsl.assign
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.getByType
@@ -59,14 +56,14 @@ open class CommonSettingsPlugin
                 repositories {
                     mavenCentral()
                     gradlePluginPortal()
-                    repox(settings.providers, fileOperations)
+                    repox("sonarsource", settings.providers, fileOperations)
                 }
             }
 
             dependencyResolutionManagement {
                 repositories {
                     mavenCentral()
-                    repox(settings.providers, fileOperations)
+                    repox("sonarsource", settings.providers, fileOperations)
                 }
             }
 
@@ -81,30 +78,6 @@ open class CommonSettingsPlugin
 
             settings.pluginManager.apply("com.gradle.develocity")
         }
-
-        private fun RepositoryHandler.repox(
-            providers: ProviderFactory,
-            fileOperations: FileOperations,
-        ): MavenArtifactRepository =
-            maven {
-                name = "artifactory"
-                url = fileOperations.uri("https://repox.jfrog.io/repox/sonarsource")
-
-                // This authentication relies on env vars configured on Cirrus CI or on Gradle properties (`-P<prop>` flags or `gradle.properties` file)
-                val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
-                    .orElse(providers.gradleProperty("artifactoryUsername"))
-                val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
-                    .orElse(providers.gradleProperty("artifactoryPassword"))
-
-                if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
-                    authentication {
-                        credentials {
-                            username = artifactoryUsername.get()
-                            password = artifactoryPassword.get()
-                        }
-                    }
-                }
-            }
 
         private fun Settings.configureDevelocity() {
             val develocity = extensions.getByType<DevelocityConfiguration>()
