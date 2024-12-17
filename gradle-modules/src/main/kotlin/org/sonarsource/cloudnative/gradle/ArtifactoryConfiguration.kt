@@ -22,20 +22,29 @@ import org.gradle.api.publish.maven.MavenPomLicense
 import org.gradle.kotlin.dsl.newInstance
 import org.gradle.kotlin.dsl.property
 
-open class ArtifactoryConfiguration(
+/**
+ * Settings for publication of the project
+ */
+open class PublishingConfiguration(
     objects: ObjectFactory,
 ) {
     val pomName: Property<String> = objects.property()
-    val buildName: Property<String> = objects.property()
     val scmUrl: Property<String> = objects.property()
-    val artifactsToPublish: Property<String> = objects.property()
-    val artifactsToDownload: Property<String> = objects.property()
-    val repoKeyEnv: Property<String> = objects.property()
-    val usernameEnv: Property<String> = objects.property()
-    val passwordEnv: Property<String> = objects.property()
     internal val license: MavenPomLicense = objects.newInstance()
 
     fun license(action: MavenPomLicense.() -> Unit) {
         action.invoke(license)
     }
+}
+
+/**
+ * Settings for connection to Artifactory
+ */
+interface ArtifactoryConfiguration {
+    val buildName: Property<String>
+    val artifactsToPublish: Property<String>
+    val artifactsToDownload: Property<String>
+    val repoKeyEnv: Property<String>
+    val usernameEnv: Property<String>
+    val passwordEnv: Property<String>
 }
