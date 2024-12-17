@@ -15,72 +15,21 @@
  * along with this program; if not, see https://sonarsource.com/license/ssal/
  */
 import org.sonarsource.cloudnative.gradle.ArtifactoryConfiguration
-import org.sonarsource.cloudnative.gradle.signingCondition
 
 plugins {
-    id("com.jfrog.artifactory")
-    signing
+    // `maven-publish` is required for the `artifactory` plugin (or the root project shoudn't be published)
     `maven-publish`
+    id("com.jfrog.artifactory")
+}
+
+if (project.path != ":") {
+    throw GradleException("This build script must be applied to the root project only")
 }
 
 // this value is present on CI
 val buildNumber: String? = System.getProperty("buildNumber")
-if (project.version.toString().endsWith("-SNAPSHOT") && buildNumber != null) {
-    val versionSuffix = if (project.version.toString().count { it == '.' } == 1) ".0.$buildNumber" else ".$buildNumber"
-    project.version = project.version.toString().replace("-SNAPSHOT", versionSuffix)
-    logger.lifecycle("Project version set to $version")
-}
 
 val artifactoryConfiguration = extensions.create<ArtifactoryConfiguration>("artifactoryConfiguration")
-
-publishing {
-    publications.create<MavenPublication>("mavenJava") {
-        pom {
-            name = artifactoryConfiguration.pomName
-            description = project.description
-            url = "http://www.sonarqube.org/"
-            organization {
-                name = "SonarSource"
-                url = "http://www.sonarsource.com/"
-            }
-            licenses {
-                license {
-                    name = artifactoryConfiguration.license.name
-                    url = artifactoryConfiguration.license.url
-                    distribution = artifactoryConfiguration.license.distribution
-                    comments = artifactoryConfiguration.license.comments
-                }
-            }
-            scm {
-                url = artifactoryConfiguration.scmUrl
-            }
-            developers {
-                developer {
-                    id = "sonarsource-team"
-                    name = "SonarSource Team"
-                }
-            }
-        }
-    }
-}
-
-signing {
-    val signingKeyId: String? by project
-    val signingKey: String? by project
-    val signingPassword: String? by project
-    useInMemoryPgpKeys(signingKeyId, signingKey, signingPassword)
-    setRequired {
-        project.signingCondition()
-    }
-    sign(publishing.publications)
-}
-
-tasks.withType<Sign> {
-    onlyIf {
-        val artifactorySkip: Boolean = tasks.artifactoryPublish.get().skip
-        !artifactorySkip && project.signingCondition()
-    }
-}
 
 // `afterEvaluate` is required to inject configurable properties; see https://github.com/jfrog/artifactory-gradle-plugin/issues/71#issuecomment-1734977528
 project.afterEvaluate {
