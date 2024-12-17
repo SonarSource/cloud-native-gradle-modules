@@ -16,14 +16,26 @@
  */
 plugins {
     `kotlin-dsl`
+    `java-gradle-plugin`
     alias(libs.plugins.spotless)
 }
 
 dependencies {
+    implementation(libs.develocity)
     implementation(libs.diffplug.spotless)
-    implementation(libs.diffplug.blowdryer)
+    implementation(libs.diffplug.blowdryer.setup)
 }
 
+gradlePlugin {
+    plugins {
+        create("org.sonarsource.cloud-native.common-settings") {
+            id = "org.sonarsource.cloud-native.common-settings"
+            implementationClass = "org.sonarsource.cloudnative.gradle.CommonSettingsPlugin"
+        }
+    }
+}
+
+val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
 spotless {
     kotlin {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")

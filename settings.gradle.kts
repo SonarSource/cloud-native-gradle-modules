@@ -31,6 +31,7 @@ include("gradle-modules")
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
+        gradlePluginPortal()
     }
 }
 
