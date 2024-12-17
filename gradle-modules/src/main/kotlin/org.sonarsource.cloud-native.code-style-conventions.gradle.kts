@@ -55,21 +55,12 @@ spotless {
         toggleOffOn()
     }
     kotlinGradle {
+        ktlint().setEditorConfigPath(codeStyleConvention.editorConfigPath)
         licenseHeaderFile(licenseHeaderFile, kotlinGradleDelimiter).updateYearWithLatest(true)
     }
     format("javaMisc") {
         target("src/**/package-info.java")
         licenseHeaderFile(licenseHeaderFile, "@javax.annotation").updateYearWithLatest(true)
-    }
-
-    // Apply additional project-specific configuration after the project has been evaluated and the `codeStyleConvention` extension has been initialized
-    project.afterEvaluate {
-        spotless {
-            kotlinGradle {
-                ktlint().setEditorConfigPath(codeStyleConvention.editorConfigPath)
-            }
-        }
-        codeStyleConvention.spotless?.invoke(this@spotless)
     }
 }
 
