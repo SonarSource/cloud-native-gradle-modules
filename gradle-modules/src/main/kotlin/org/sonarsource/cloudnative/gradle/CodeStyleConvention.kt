@@ -17,14 +17,10 @@
 package org.sonarsource.cloudnative.gradle
 
 import com.diffplug.gradle.spotless.SpotlessExtension
+import org.gradle.api.Project
 import org.gradle.api.provider.Property
+import org.gradle.kotlin.dsl.getByType
 
 interface CodeStyleConvention {
     val editorConfigPath: Property<String>
-
-    var spotless: (SpotlessExtension.() -> Unit)?
-
-    fun spotless(action: SpotlessExtension.() -> Unit) {
-        spotless = action
-    }
 }
