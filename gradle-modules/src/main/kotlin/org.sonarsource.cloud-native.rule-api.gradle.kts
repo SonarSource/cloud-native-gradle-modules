@@ -29,6 +29,12 @@ repositories {
 
 dependencies {
     ruleApi("com.sonarsource.rule-api:rule-api:2.9.0.4061")
+    ruleApi("org.slf4j:slf4j-nop:1.7.36") {
+        because(
+            "To get rid of a warning. A logging backend is not needed, because the rule API logs everything important to stdout. " +
+                "Slf4j logs contain only debug information"
+        )
+    }
 }
 
 // Register the tasks to generate and update the rules. This is a callback that will be executed when the taskListProvider is evaluated.

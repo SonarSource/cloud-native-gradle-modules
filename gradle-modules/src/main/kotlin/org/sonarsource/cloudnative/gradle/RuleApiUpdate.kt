@@ -57,7 +57,6 @@ fun Project.registerRuleApiUpdateTask(
         workingDir = sonarpediaLocation
         args(
             buildList {
-                add("com.sonarsource.ruleapi.Main")
                 add("update")
                 if (branch.isPresent) {
                     add("-branch")
@@ -70,25 +69,25 @@ fun Project.registerRuleApiUpdateTask(
 fun Project.registerRuleApiGenerateTask(
     language: String,
     sonarpediaLocation: File,
-): TaskProvider<JavaExec> = registerRuleApiTask("ruleApiGenerateRule$language") {
-    val rule = providers.gradleProperty("rule")
-    val branch = providers.gradleProperty("branch")
-    description = "Update rule description for $language"
+): TaskProvider<JavaExec> =
+    registerRuleApiTask("ruleApiGenerateRule$language") {
+        val rule = providers.gradleProperty("rule")
+        val branch = providers.gradleProperty("branch")
+        description = "Update rule description for $language"
 
-    workingDir = sonarpediaLocation
-    args(
-        buildList {
-            add("com.sonarsource.ruleapi.Main")
-            add("generate")
-            add("-rule")
-            add(rule.orNull ?: error("To generate rule rspec, please provide -Prule=SXXXX"))
-            if (branch.isPresent) {
-                add("-branch")
-                add(branch.get())
+        workingDir = sonarpediaLocation
+        args(
+            buildList {
+                add("generate")
+                add("-rule")
+                add(rule.orNull ?: error("To generate rule rspec, please provide -Prule=SXXXX"))
+                if (branch.isPresent) {
+                    add("-branch")
+                    add(branch.get())
+                }
             }
-        }
-    )
-}
+        )
+    }
 
 private fun Project.registerRuleApiTask(
     name: String,
@@ -103,6 +102,7 @@ private fun Project.registerRuleApiTask(
             }
         )
         classpath = configurations.getByName("ruleApi")
+        mainClass = "com.sonarsource.ruleapi.Main"
         outputs.upToDateWhen {
             // As rule-api fetches data from rspec repo, we can't determine if the task is up-to-date
             false
