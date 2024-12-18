@@ -36,7 +36,7 @@ abstract class RuleApiExtension(
     // After the corresponding issue is resolved, this can be simplified into an interface.
     val fileOperations: FileOperations,
 ) {
-    val inputs: MapProperty<String, String> = objects.mapProperty<String, String>()
+    val languageToSonarpediaDirectory: MapProperty<String, String> = objects.mapProperty<String, String>()
 }
 
 /**
@@ -47,12 +47,12 @@ abstract class RuleApiExtension(
 abstract class RuleApiService : BuildService<BuildServiceParameters.None>
 
 fun Project.registerRuleApiUpdateTask(
-    suffix: String,
+    language: String,
     sonarpediaLocation: File,
 ): TaskProvider<JavaExec> =
-    registerRuleApiTask("ruleApiUpdate$suffix") {
+    registerRuleApiTask("ruleApiUpdate$language") {
         val branch = providers.gradleProperty("branch")
-        description = "Update $suffix rules description"
+        description = "Update $language rules description"
 
         workingDir = sonarpediaLocation
         args(
@@ -68,28 +68,26 @@ fun Project.registerRuleApiUpdateTask(
     }
 
 fun Project.registerRuleApiGenerateTask(
-    suffix: String,
+    language: String,
     sonarpediaLocation: File,
-): TaskProvider<JavaExec> {
+): TaskProvider<JavaExec> = registerRuleApiTask("ruleApiGenerateRule$language") {
     val rule = providers.gradleProperty("rule")
     val branch = providers.gradleProperty("branch")
-    return registerRuleApiTask("ruleApiGenerateRule$suffix") {
-        description = "Update rule description for $suffix"
+    description = "Update rule description for $language"
 
-        workingDir = sonarpediaLocation
-        args(
-            buildList {
-                add("com.sonarsource.ruleapi.Main")
-                add("generate")
-                add("-rule")
-                add(rule.orNull ?: error("To generate rule rspec, please provide -Prule=SXXXX"))
-                if (branch.isPresent) {
-                    add("-branch")
-                    add(branch.get())
-                }
+    workingDir = sonarpediaLocation
+    args(
+        buildList {
+            add("com.sonarsource.ruleapi.Main")
+            add("generate")
+            add("-rule")
+            add(rule.orNull ?: error("To generate rule rspec, please provide -Prule=SXXXX"))
+            if (branch.isPresent) {
+                add("-branch")
+                add(branch.get())
             }
-        )
-    }
+        }
+    )
 }
 
 private fun Project.registerRuleApiTask(

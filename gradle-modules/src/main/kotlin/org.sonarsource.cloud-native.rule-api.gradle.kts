@@ -31,17 +31,20 @@ dependencies {
     ruleApi("com.sonarsource.rule-api:rule-api:2.9.0.4061")
 }
 
-project.afterEvaluate {
-    val inputs = ruleApiExtension.inputs.get()
-    val ruleApiUpdateTasks = mutableSetOf<TaskProvider<JavaExec>>()
-    inputs.forEach { (language, sonarpedia) ->
-        registerRuleApiUpdateTask(language, file(sonarpedia)).also { ruleApiUpdateTasks.add(it) }
-        registerRuleApiGenerateTask(language, file(sonarpedia))
+// Register the tasks to generate and update the rules. This is a callback that will be executed when the taskListProvider is evaluated.
+// This will be done because taskListProvider will be used in the dependsOn of the umbrella task ruleApiUpdate.
+val taskListProvider = ruleApiExtension.languageToSonarpediaDirectory.map {
+    it.map { (language, sonarpediaDirectory) ->
+        // Register the task to generate a new rule, discard the returned provider
+        registerRuleApiGenerateTask(language, file(sonarpediaDirectory))
+        // Register the task to update the rule, and return the provider to be used as a dependency of the umbrella ruleApiUpdate task
+        registerRuleApiUpdateTask(language, file(sonarpediaDirectory))
     }
+}
 
-    tasks.register("ruleApiUpdate") {
-        description = "Update ALL rules description"
-        group = "Rule API"
-        ruleApiUpdateTasks.forEach { this.dependsOn(it) }
-    }
+tasks.register("ruleApiUpdate") {
+    description = "Update ALL rules description"
+    group = "Rule API"
+
+    dependsOn(taskListProvider)
 }
