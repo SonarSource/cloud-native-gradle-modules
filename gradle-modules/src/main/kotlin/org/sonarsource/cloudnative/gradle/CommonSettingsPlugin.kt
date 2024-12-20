@@ -97,6 +97,11 @@ open class CommonSettingsPlugin
                     value("Branch", System.getenv("CIRRUS_BRANCH"))
                     value("PR", System.getenv("CIRRUS_PR"))
                     value("PR Title", System.getenv("CIRRUS_PR_TITLE"))
+
+                    capture {
+                        // `properties` task can log sensitive information, so we disable uploading of build logs for it
+                        buildLogging = "properties" !in startParameter.taskNames
+                    }
                 }
             }
 
