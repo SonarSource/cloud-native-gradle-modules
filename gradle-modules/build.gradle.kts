@@ -38,11 +38,10 @@ gradlePlugin {
     }
 }
 
-val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
 spotless {
     kotlin {
         ktlint().setEditorConfigPath("$rootDir/.editorconfig")
-        targetExclude("build/**")
+        target("src/**/*.kt")
         licenseHeaderFile(rootProject.file("LICENSE_HEADER")).updateYearWithLatest(true)
     }
 

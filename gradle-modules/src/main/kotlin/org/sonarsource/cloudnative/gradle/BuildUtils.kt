@@ -21,6 +21,8 @@ import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.Exec
+import org.gradle.internal.os.OperatingSystem
 
 fun Project.signingCondition(): Boolean {
     val branch = System.getenv()["CIRRUS_BRANCH"] ?: ""
@@ -52,3 +54,14 @@ internal fun RepositoryHandler.repox(
             }
         }
     }
+
+/**
+ * Configures this `Exec` task to call `make.sh` or `make.bat` depending on the operating system.
+ */
+fun Exec.callMake(arg: String) {
+    if (OperatingSystem.current().isWindows) {
+        commandLine("cmd", "/c", "make.bat", arg)
+    } else {
+        commandLine("./make.sh", arg)
+    }
+}
