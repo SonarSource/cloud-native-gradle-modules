@@ -34,28 +34,32 @@ val integrationTestConfiguration = extensions.create<IntegrationTestExtension>("
 configurations[integrationTest.implementationConfigurationName].extendsFrom(configurations.testImplementation.get())
 configurations[integrationTest.runtimeOnlyConfigurationName].extendsFrom(configurations.testRuntimeOnly.get())
 
+val sonarRuntimeVersion: String = System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE")
 tasks.register<Test>("integrationTest") {
     description = "Runs integration tests."
     group = "verification"
     inputs.dir(integrationTestConfiguration.testSources)
-    inputs.property("SQ version", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
+    inputs.property("SQ version", sonarRuntimeVersion)
     inputs.property("keep SQ running", System.getProperty("keepSonarqubeRunning", "false"))
     useJUnitPlatform()
 
     testClassesDirs = integrationTest.output.classesDirs
     classpath = configurations[integrationTest.runtimeClasspathConfigurationName] + integrationTest.output
 
-    if (System.getProperty("sonar.runtimeVersion") != null) {
-        systemProperty("sonar.runtimeVersion", System.getProperty("sonar.runtimeVersion", "LATEST_RELEASE"))
-    }
+    systemProperty("sonar.runtimeVersion", sonarRuntimeVersion)
 
-    if (System.getProperty("keepSonarqubeRunning") != null) {
-        systemProperty("keepSonarqubeRunning", System.getProperty("keepSonarqubeRunning"))
+    System.getProperty("keepSonarqubeRunning")?.let {
+        systemProperty("keepSonarqubeRunning", it)
     }
 
     testLogging {
         // log the full stack trace (default is the 1st line of the stack trace)
         exceptionFormat = TestExceptionFormat.FULL
         events(STARTED, PASSED, SKIPPED, FAILED)
+    }
+
+    outputs.upToDateWhen {
+        // As the exact SQ version is not known at configuration time, we cannot know if the task is up-to-date
+        false
     }
 }
