@@ -48,7 +48,7 @@ open class CommonSettingsPlugin
                 }
             }
 
-            settings.configureDevelocity()
+//            settings.configureDevelocity()
         }
 
         private fun Settings.configureRepositories() {
@@ -76,7 +76,7 @@ open class CommonSettingsPlugin
             // Blowdryer is needed to provide immutable URLs for Spotless (e.g. the Eclipse formatter config)
             settings.pluginManager.apply("com.diffplug.blowdryerSetup")
 
-            settings.pluginManager.apply("com.gradle.develocity")
+//            settings.pluginManager.apply("com.gradle.develocity")
         }
 
         private fun Settings.configureDevelocity() {
