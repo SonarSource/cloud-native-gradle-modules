@@ -18,6 +18,7 @@ pluginManagement {
 ```
 
 Here we used `gradle/build-logic` as a directory, but the choice is arbitrary.
+An example usage can be seen in the [Sonar-Go analyzer](https://github.com/SonarSource/sonar-go/blob/d4b923d43c3183927a32dc0956cbf4e4ec50d8a9/settings.gradle.kts#L17)
 
 ### Configure Git to Automatically Checkout Changes in the Submodule
 
