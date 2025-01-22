@@ -22,10 +22,6 @@ plugins {
     id("com.jfrog.artifactory")
 }
 
-if (project.path != ":") {
-    throw GradleException("This build script must be applied to the root project only")
-}
-
 // this value is present on CI
 val buildNumber: String? = System.getProperty("buildNumber")
 
