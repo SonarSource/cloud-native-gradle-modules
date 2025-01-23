@@ -99,3 +99,8 @@ fun checkJarEntriesPathUniqueness(file: File) {
         throw GradleException("Duplicated entries in the jar: '${file.path}': ${duplicatedNames.joinToString(", ")}")
     }
 }
+
+fun Project.commitHashProvider(ref: String = "HEAD") =
+    providers.exec {
+        commandLine("git", "rev-parse", ref)
+    }.standardOutput.asText

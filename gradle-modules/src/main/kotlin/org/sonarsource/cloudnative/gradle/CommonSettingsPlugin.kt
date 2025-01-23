@@ -81,10 +81,17 @@ open class CommonSettingsPlugin
 
         private fun Settings.configureDevelocity() {
             val develocity = extensions.getByType<DevelocityConfiguration>()
+            val isCI = System.getenv("CI") != null
 
             extensions.configure<DevelocityConfiguration> {
                 server = "https://develocity.sonar.build"
                 buildScan {
+                    publishing {
+                        onlyIf {
+                            isCI
+                        }
+                    }
+
                     tag(if (System.getenv("CI").isNullOrEmpty()) "local" else "CI")
                     tag(System.getProperty("os.name"))
                     if (System.getenv("CIRRUS_BRANCH") == "master") {
@@ -105,7 +112,6 @@ open class CommonSettingsPlugin
                 }
             }
 
-            val isCI = System.getenv("CI") != null
             buildCache {
                 local {
                     isEnabled = !isCI
