@@ -22,8 +22,11 @@ plugins {
     id("com.jfrog.artifactory")
 }
 
-if (project.path != ":") {
-    throw GradleException("This build script must be applied to the root project only")
+if (project.path != ":" && "-plugin" !in project.path) {
+    throw GradleException(
+        "This build script configures Artifactory connection for a build of a SonarQube plugin. " +
+            "This script must be applied either to the root project or in a \"-plugin\" project."
+    )
 }
 
 // this value is present on CI

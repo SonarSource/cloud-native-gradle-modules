@@ -16,6 +16,10 @@
  */
 package org.sonarsource.cloudnative.gradle
 
+import java.io.File
+import java.util.HashSet
+import java.util.jar.JarInputStream
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
@@ -65,3 +69,38 @@ fun Exec.callMake(arg: String) {
         commandLine("./make.sh", arg)
     }
 }
+
+fun enforceJarSize(
+    file: File,
+    minSize: Long,
+    maxSize: Long,
+) {
+    val size = file.length()
+    if (size < minSize) {
+        throw GradleException("${file.path} size ($size) too small. Min is $minSize")
+    } else if (size > maxSize) {
+        throw GradleException("${file.path} size ($size) too large. Max is $maxSize")
+    }
+}
+
+fun checkJarEntriesPathUniqueness(file: File) {
+    val allNames = HashSet<String>()
+    val duplicatedNames = HashSet<String>()
+    file.inputStream().use { input ->
+        JarInputStream(input).use { jarInput ->
+            for (jarEntry in generateSequence { jarInput.nextJarEntry }) {
+                if (!allNames.add(jarEntry.name)) {
+                    duplicatedNames.add(jarEntry.name)
+                }
+            }
+        }
+    }
+    if (duplicatedNames.isNotEmpty()) {
+        throw GradleException("Duplicated entries in the jar: '${file.path}': ${duplicatedNames.joinToString(", ")}")
+    }
+}
+
+fun Project.commitHashProvider(ref: String = "HEAD") =
+    providers.exec {
+        commandLine("git", "rev-parse", ref)
+    }.standardOutput.asText

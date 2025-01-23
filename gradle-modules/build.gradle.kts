@@ -27,6 +27,7 @@ dependencies {
     implementation(libs.jfrog.buildinfo.gradle) {
         exclude("ch.qos.logback", "logback-core")
     }
+    implementation(libs.shadow)
 }
 
 gradlePlugin {
