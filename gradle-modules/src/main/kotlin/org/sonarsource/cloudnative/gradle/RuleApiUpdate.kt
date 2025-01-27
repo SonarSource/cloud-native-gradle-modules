@@ -80,13 +80,19 @@ fun Project.registerRuleApiGenerateTask(
             buildList {
                 add("generate")
                 add("-rule")
-                add(rule.orNull ?: error("To generate rule rspec, please provide -Prule=SXXXX"))
+                add(rule.getOrElse(""))
                 if (branch.isPresent) {
                     add("-branch")
                     add(branch.get())
                 }
             }
         )
+
+        doFirst {
+            if (!rule.isPresent) {
+                error("To generate rule rspec, please provide -Prule=SXXXX")
+            }
+        }
     }
 
 private fun Project.registerRuleApiTask(
