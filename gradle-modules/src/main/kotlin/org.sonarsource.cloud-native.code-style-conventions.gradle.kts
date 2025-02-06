@@ -43,8 +43,7 @@ spotless {
                 mapOf(
                     "https://download.eclipse.org/eclipse/" to "https://ftp.fau.de/eclipse/eclipse/"
                 )
-            )
-            .configFile(
+            ).configFile(
                 Blowdryer.immutableUrl(
                     "https://raw.githubusercontent.com/SonarSource/sonar-developer-toolset/" +
                         "540ef32ba22c301f6d05a5305f4e1dbd204839f3/eclipse/sonar-formatter.xml"
