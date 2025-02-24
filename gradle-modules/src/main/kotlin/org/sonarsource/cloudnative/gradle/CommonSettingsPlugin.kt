@@ -17,6 +17,7 @@
 package org.sonarsource.cloudnative.gradle
 
 import com.gradle.develocity.agent.gradle.DevelocityConfiguration
+import java.io.File
 import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -44,6 +45,19 @@ open class CommonSettingsPlugin
                     val versionSuffix = if (version.count { it == '.' } == 1) ".0.$buildNumber" else ".$buildNumber"
                     project.version = version.replace("-SNAPSHOT", versionSuffix).also {
                         logger.lifecycle("Project ${project.name} version set to $it")
+                    }
+                    if (project.path == ":" && findProperty("storeProjectVersion") == "true") {
+                        System.getenv("CIRRUS_WORKING_DIR")?.let { cirrusWorkingDir ->
+                            // The version from this file can be cached and reused in other steps of the pipeline.
+                            val projectVersionFile =
+                                File(
+                                    "$cirrusWorkingDir/${System.getenv(
+                                        "PROJECT_VERSION_CACHE_DIR"
+                                    ) ?: "project-version"}/evaluated_project_version.txt"
+                                )
+                            logger.lifecycle("Saving evaluated project version to ${projectVersionFile.absolutePath}")
+                            projectVersionFile.writeText(project.version.toString())
+                        }
                     }
                 }
             }
