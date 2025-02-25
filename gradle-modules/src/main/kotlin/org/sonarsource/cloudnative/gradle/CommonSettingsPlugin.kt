@@ -48,6 +48,26 @@ open class CommonSettingsPlugin
                 }
             }
 
+            settings.gradle.rootProject {
+                tasks.register("storeProjectVersion") {
+                    group = "build"
+                    description = "Store the project version in a file to be used in CI caches"
+                    inputs.property("version", this@rootProject.version)
+                    val projectVersionFile =
+                        file(
+                            "${System.getenv(
+                                "CIRRUS_WORKING_DIR"
+                            )}/${System.getenv("PROJECT_VERSION_CACHE_DIR")}/evaluated_project_version.txt"
+                        )
+                    outputs.file(projectVersionFile)
+                    outputs.cacheIf { true }
+
+                    doLast {
+                        projectVersionFile.writeText(this@rootProject.version.toString())
+                    }
+                }
+            }
+
             settings.configureDevelocity()
         }
 
