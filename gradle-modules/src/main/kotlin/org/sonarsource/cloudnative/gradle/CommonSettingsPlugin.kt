@@ -17,7 +17,6 @@
 package org.sonarsource.cloudnative.gradle
 
 import com.gradle.develocity.agent.gradle.DevelocityConfiguration
-import java.io.File
 import javax.inject.Inject
 import org.gradle.api.Plugin
 import org.gradle.api.initialization.Settings
@@ -46,18 +45,25 @@ open class CommonSettingsPlugin
                     project.version = version.replace("-SNAPSHOT", versionSuffix).also {
                         logger.lifecycle("Project ${project.name} version set to $it")
                     }
-                    if (project.path == ":" && findProperty("storeProjectVersion") == "true") {
-                        System.getenv("CIRRUS_WORKING_DIR")?.let { cirrusWorkingDir ->
-                            // The version from this file can be cached and reused in other steps of the pipeline.
-                            val projectVersionFile =
-                                File(
-                                    "$cirrusWorkingDir/${System.getenv(
-                                        "PROJECT_VERSION_CACHE_DIR"
-                                    ) ?: "project-version"}/evaluated_project_version.txt"
-                                )
-                            logger.lifecycle("Saving evaluated project version to ${projectVersionFile.absolutePath}")
-                            projectVersionFile.writeText(project.version.toString())
-                        }
+                }
+            }
+
+            settings.gradle.rootProject {
+                tasks.register("storeProjectVersion") {
+                    group = "build"
+                    description = "Store the project version in a file to be used in CI caches"
+                    inputs.property("version", this@rootProject.version)
+                    val projectVersionFile =
+                        file(
+                            "${System.getenv(
+                                "CIRRUS_WORKING_DIR"
+                            )}/${System.getenv("PROJECT_VERSION_CACHE_DIR")}/evaluated_project_version.txt"
+                        )
+                    outputs.file(projectVersionFile)
+                    outputs.cacheIf { true }
+
+                    doLast {
+                        projectVersionFile.writeText(this@rootProject.version.toString())
                     }
                 }
             }
