@@ -25,10 +25,14 @@ val cleanupTask = tasks.register<Delete>("cleanupOldVersion") {
     group = "build"
     description = "Clean up jars of old plugin version"
 
+    // those variables need to be calculated in the configuration phase to enable Configuration cache
+    // https://docs.gradle.org/8.12.1/userguide/configuration_cache.html#config_cache:requirements:disallowed_types
+    var projectName = "${project.name}-*.jar"
+    var projectVersion = "${project.version}"
     delete(
         fileTree(layout.buildDirectory.dir("libs")).matching {
-            include("${project.name}-*.jar")
-            exclude("${project.name}-${project.version}-*.jar")
+            include("${projectName}-*.jar")
+            exclude("${projectName}-${projectVersion}-*.jar")
         }
     )
 }
