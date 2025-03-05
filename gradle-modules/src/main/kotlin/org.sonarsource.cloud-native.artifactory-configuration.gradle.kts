@@ -34,6 +34,8 @@ val buildNumber: String? = System.getProperty("buildNumber")
 
 val artifactoryConfiguration = extensions.create<ArtifactoryConfiguration>("artifactoryConfiguration")
 
+val projectVersion = project.version as String
+
 // `afterEvaluate` is required to inject configurable properties; see https://github.com/jfrog/artifactory-gradle-plugin/issues/71#issuecomment-1734977528
 project.afterEvaluate {
     artifactory {
@@ -63,7 +65,7 @@ project.afterEvaluate {
                 setProperties(
                     mapOf(
                         "build.name" to artifactoryConfiguration.buildName.get(),
-                        "version" to project.version.toString(),
+                        "version" to projectVersion,
                         "build.number" to buildNumber,
                         "pr.branch.target" to System.getenv("PULL_REQUEST_BRANCH_TARGET"),
                         "pr.number" to System.getenv("PULL_REQUEST_NUMBER"),
@@ -77,7 +79,7 @@ project.afterEvaluate {
             }
         }
 
-        clientConfig.info.addEnvironmentProperty("PROJECT_VERSION", project.version.toString())
+        clientConfig.info.addEnvironmentProperty("PROJECT_VERSION", projectVersion)
         clientConfig.info.buildName = artifactoryConfiguration.buildName.get()
         clientConfig.info.buildNumber = buildNumber
         clientConfig.isIncludeEnvVars = true
