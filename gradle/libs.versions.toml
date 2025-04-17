@@ -11,7 +11,7 @@ diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", v
 diffplug-blowdryer-setup = { module = "com.diffplug.blowdryerSetup:com.diffplug.blowdryerSetup.gradle.plugin", version.ref = "blowdryer-gradle" }
 develocity = { module = "com.gradle.develocity:com.gradle.develocity.gradle.plugin", version.ref = "develocity" }
 jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
-sonar-rule-api = { module = "org.sonarsource.rule-api:rule-api", version.ref = "rule-api" }
+sonar-rule-api = { module = "com.sonarsource.rule-api:rule-api", version.ref = "rule-api" }
 shadow = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "gradle-plugin-shadow" }
 
 [plugins]

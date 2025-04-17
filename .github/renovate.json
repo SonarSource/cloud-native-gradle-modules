@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>SonarSource/renovate-config:languages-team"
+  ],
+  "schedule": [
+    "before 4am on Monday"
+  ],
+  "rebaseWhen": "conflicted",
+  "enabledManagers": [
+    "gradle",
+    "gradle-wrapper"
+  ],
+  "gradle": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchManagers": [
+        "gradle"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
+  ],
+  "reviewers": ["team:security-cloud-squad"]
+}
