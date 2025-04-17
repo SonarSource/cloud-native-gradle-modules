@@ -32,7 +32,7 @@ def main(ctx):
 def build_task():
     return {
         "build_task": {
-            "env": gradle_base_env() | {
+            "env": gradle_base_env() | gradle_develocity_env() | {
                 "CIRRUS_CLONE_DEPTH": 10,
             },
             "eks_container": base_image_container_builder(cpu=1, memory="4G"),
