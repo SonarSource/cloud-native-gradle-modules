@@ -16,8 +16,8 @@
  */
 package org.sonarsource.cloudnative.gradle
 
-import org.gradle.api.provider.Property
+import org.gradle.api.file.RegularFileProperty
 
 interface CodeStyleConvention {
-    val editorConfigPath: Property<String>
+    val editorConfigPath: RegularFileProperty
 }
