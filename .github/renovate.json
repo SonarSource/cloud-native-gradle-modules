@@ -25,6 +25,13 @@
       ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchPackageNames": [
+        "com.gradle.develocity",
+        "com.gradle.develocity:com.gradle.develocity.gradle.plugin"
+      ],
+      "allowedVersions": "<3.19"
     }
   ],
   "reviewers": ["team:security-cloud-squad"]
