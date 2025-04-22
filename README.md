@@ -34,3 +34,20 @@ git config submodule.recurse true
 ```
 
 Optionally, run this command with `--global` to apply this configuration globally.
+
+# Common use cases
+
+## Publishing a sonar plugin
+
+* Apply `artifactory-configuration` to the root project to set some defaults
+* Apply `sonar-plugin` to the subproject that contains the plugin
+* If necessary, re-apply `artifactory-configuration` to the subproject to override the defaults
+
+## Building a Go executable
+
+* Apply `go-binary-builder` script to the subproject that contains the Go code
+  * It expects `make.sh` and `make.bat` scripts to be present in the same directory as `build.gradle[.kts]`
+* Configure the `goBuild` extension
+* Go-related tasks are automatically linked to `test`, `assemble`, `check`, and `build` tasks
+* A configuration `goBinaries` is created, and it can be used to depend on the Go binaries like
+  `implementation(projects(":go-subprojcet", "goBinaries"))`
