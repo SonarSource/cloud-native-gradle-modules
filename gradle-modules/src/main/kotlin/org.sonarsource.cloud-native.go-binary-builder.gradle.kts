@@ -33,7 +33,9 @@ val goBinariesJar by tasks.registering(Jar::class) {
 }
 artifacts.add(goBinaries.name, goBinariesJar)
 
-val goVersion = providers.environmentVariable("GO_VERSION").getOrElse("1.23.4")
+val goVersion = providers.environmentVariable("GO_VERSION")
+    .orElse(providers.gradleProperty("goVersion"))
+    .orNull ?: error("Either `GO_VERSION` env variable or `goVersion` Gradle property must be set")
 val isCrossCompile = providers.environmentVariable("GO_CROSS_COMPILE").orElse("0")
 val isCi: Boolean = System.getenv("CI")?.equals("true") == true
 val goBuildExtension = extensions.create("goBuild", GoBuild::class)
