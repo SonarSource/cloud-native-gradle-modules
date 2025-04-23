@@ -18,6 +18,7 @@ package org.sonarsource.cloudnative.gradle
 
 import java.io.File
 import java.util.HashSet
+import java.util.Locale
 import java.util.jar.JarInputStream
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -104,3 +105,20 @@ fun Project.commitHashProvider(ref: String = "HEAD") =
     providers.exec {
         commandLine("git", "rev-parse", ref)
     }.standardOutput.asText
+
+fun getPlatform(): String {
+    val os = System.getProperty("os.name").lowercase(Locale.getDefault())
+    return when {
+        os.contains("mac") -> "darwin"
+        os.contains("win") -> "windows"
+        else -> "linux"
+    }
+}
+
+fun getArchitecture(): String {
+    val arch = System.getProperty("os.arch").lowercase(Locale.getDefault())
+    return when {
+        arch.contains("aarch64") -> "arm64"
+        else -> "amd64"
+    }
+}
