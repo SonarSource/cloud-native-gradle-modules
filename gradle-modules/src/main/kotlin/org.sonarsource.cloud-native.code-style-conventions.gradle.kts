@@ -24,7 +24,7 @@ plugins {
 val codeStyleConvention = extensions.create<CodeStyleConvention>("codeStyleConvention")
 codeStyleConvention.editorConfigPath.convention(layout.settingsDirectory.file("build-logic/common/.editorconfig"))
 
-val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories) "
+val kotlinGradleDelimiter = "(package|import|plugins|pluginManagement|dependencyResolutionManagement|repositories|gradle.allprojects) "
 val licenseHeaderFileName = if (project.path.startsWith(":private")) "private/LICENSE_HEADER_PRIVATE" else "LICENSE_HEADER"
 val licenseHeaderFile = rootProject.file(licenseHeaderFileName)
 
