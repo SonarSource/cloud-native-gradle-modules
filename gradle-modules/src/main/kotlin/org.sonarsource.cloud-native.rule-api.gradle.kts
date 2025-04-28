@@ -19,7 +19,7 @@ import org.sonarsource.cloudnative.gradle.registerRuleApiGenerateTask
 import org.sonarsource.cloudnative.gradle.registerRuleApiUpdateTask
 import org.sonarsource.cloudnative.gradle.repox
 
-val ruleApi: Configuration = configurations.create("ruleApi")
+val ruleApi = configurations.register("ruleApi")
 val ruleApiExtension = extensions.create<RuleApiExtension>("ruleApi")
 
 repositories {
