@@ -107,6 +107,8 @@ val dockerTasks = goBuildExtension.dockerCommands.map { tasksToCommands ->
                 "type=bind,source=${project.projectDir},target=$workDir",
                 "--env",
                 "GO_CROSS_COMPILE=${inputs.properties["goCrossCompile"]}",
+                "--env",
+                "GO_VERSION=$goVersion",
                 "${project.name}-builder",
                 "bash",
                 "-c",
