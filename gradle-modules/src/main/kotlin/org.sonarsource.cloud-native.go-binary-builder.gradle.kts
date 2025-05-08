@@ -30,13 +30,13 @@ plugins {
     id("org.sonarsource.cloud-native.go-docker-environment")
 }
 
-val goBinaries: Configuration by configurations.creating
+val goBinaries by configurations.registering
 val goBinariesJar by tasks.registering(Jar::class) {
     group = "build"
     archiveClassifier.set("binaries")
     from(GO_BINARY_OUTPUT_DIR)
 }
-artifacts.add(goBinaries.name, goBinariesJar)
+artifacts.add(goBinaries.get().name, goBinariesJar)
 
 val goBuildExtension = extensions.findByType<GoBuild>() ?: extensions.create<GoBuild>("goBuild")
 goBuildExtension.dockerWorkDir.convention("/home/sonarsource/${project.name}")
