@@ -1,7 +1,7 @@
 [versions]
 spotless-gradle = "7.0.4"
 blowdryer-gradle = "1.7.1"
-develocity = "3.18.2"
+develocity = "4.0.1"
 jackson = "2.19.1"
 jfrog-gradle = "5.2.5"
 rule-api = "2.14.0.4452"
