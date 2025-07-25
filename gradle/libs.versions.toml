@@ -3,7 +3,7 @@ spotless-gradle = "7.0.4"
 blowdryer-gradle = "1.7.1"
 develocity = "4.0.1"
 jackson = "2.19.1"
-jfrog-gradle = "5.2.5"
+jfrog-gradle = "6.0.0"
 gradle-plugin-shadow = "8.3.8"
 
 [libraries]
