@@ -78,7 +78,7 @@ fun enforceJarSize(
     file: File,
     minSize: Long,
     maxSize: Long,
-    logger: Logger
+    logger: Logger,
 ) {
     val size = file.length()
     if (size < minSize) {
