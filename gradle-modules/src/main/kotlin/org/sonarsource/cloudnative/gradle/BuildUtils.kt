@@ -84,7 +84,7 @@ fun Project.enforceJarSize(
     } else if (size > maxSize) {
         throw GradleException("${file.path} size ($size) too large. Max is $maxSize")
     }
-    logger.info("${file.name}: has size $size")
+    logger.info("Artifact ${file.name} has size $size")
 }
 
 fun checkJarEntriesPathUniqueness(file: File) {
