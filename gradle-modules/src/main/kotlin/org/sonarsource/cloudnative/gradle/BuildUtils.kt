@@ -73,7 +73,7 @@ fun Exec.callMake(arg: String) {
     }
 }
 
-fun enforceJarSize(
+fun Project.enforceJarSize(
     file: File,
     minSize: Long,
     maxSize: Long,
@@ -84,7 +84,7 @@ fun enforceJarSize(
     } else if (size > maxSize) {
         throw GradleException("${file.path} size ($size) too large. Max is $maxSize")
     }
-    println("${file.path} has size $size")
+    logger.info("${file.name}: has size $size")
 }
 
 fun checkJarEntriesPathUniqueness(file: File) {
