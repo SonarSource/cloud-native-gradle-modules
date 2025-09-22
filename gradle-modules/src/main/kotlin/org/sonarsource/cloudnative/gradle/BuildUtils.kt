@@ -67,7 +67,7 @@ internal fun RepositoryHandler.repox(
             authentication {
                 credentials(HttpHeaderCredentials::class.java) {
                     name = "Authorization"
-                    value = providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN").orNull
+                    value = "Bearer " + providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN").orNull
                 }
             }
         }
