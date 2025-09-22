@@ -68,8 +68,8 @@ internal fun RepositoryHandler.repox(
                 credentials(HttpHeaderCredentials::class.java) {
                     name = "Authorization"
                     value = "Bearer " + providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN")
-                        .map { it.substringAfter(" ") }
                         .orNull
+                    println("AAAA value ${value?.substring(0, 15)}")
                 }
             }
         }
