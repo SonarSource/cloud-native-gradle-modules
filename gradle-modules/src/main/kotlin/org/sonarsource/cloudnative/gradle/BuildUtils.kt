@@ -29,7 +29,9 @@ import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Exec
+import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.kotlin.dsl.create
 
 fun isCi() = System.getenv("CI")?.equals("true") == true
 
@@ -67,10 +69,10 @@ internal fun RepositoryHandler.repox(
             if (token.isPresent) {
                 println("AAAA Configure Artifactory using HttpHeaderCredentials and ARTIFACTORY_ACCESS_TOKEN (token found)")
                 authentication {
+                    add(create<HttpHeaderAuthentication>("header"))
                     credentials(HttpHeaderCredentials::class.java) {
                         name = "Authorization"
                         value = "Bearer " + token.get()
-                        println("AAAA value ${value?.substring(0, 15)}")
                     }
                 }
             } else {
