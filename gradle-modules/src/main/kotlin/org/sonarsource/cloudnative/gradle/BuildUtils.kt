@@ -24,11 +24,14 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.RepositoryHandler
 import org.gradle.api.artifacts.repositories.MavenArtifactRepository
+import org.gradle.api.credentials.HttpHeaderCredentials
 import org.gradle.api.internal.file.FileOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.provider.ProviderFactory
 import org.gradle.api.tasks.Exec
+import org.gradle.authentication.http.HttpHeaderAuthentication
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.kotlin.dsl.create
 
 fun isCi() = System.getenv("CI")?.equals("true") == true
 
@@ -54,11 +57,28 @@ internal fun RepositoryHandler.repox(
             .orElse(providers.gradleProperty("artifactoryPassword"))
 
         if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
+            // This configuration is used on developer machines
+            println("Configure Artifactory using username and password")
             authentication {
                 credentials {
                     username = artifactoryUsername.get()
                     password = artifactoryPassword.get()
                 }
+            }
+        } else {
+            // This configuration is used in GitHub Actions
+            val token = providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN")
+            if (token.isPresent) {
+                println("Configure Artifactory using HttpHeaderCredentials and ARTIFACTORY_ACCESS_TOKEN (token found)")
+                authentication {
+                    add(create<HttpHeaderAuthentication>("header"))
+                    credentials(HttpHeaderCredentials::class.java) {
+                        name = "Authorization"
+                        value = "Bearer " + token.get()
+                    }
+                }
+            } else {
+                println("No Artifactory credentials provided, no value for ARTIFACTORY_ACCESS_TOKEN")
             }
         }
     }
