@@ -63,14 +63,18 @@ internal fun RepositoryHandler.repox(
                 }
             }
         } else {
-            println("AAAA Configure Artifactory using HttpHeaderCredentials and ARTIFACTORY_ACCESS_TOKEN")
-            authentication {
-                credentials(HttpHeaderCredentials::class.java) {
-                    name = "Authorization"
-                    value = "Bearer " + providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN")
-                        .orNull
-                    println("AAAA value ${value?.substring(0, 15)}")
+            val token = providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN")
+            if (token.isPresent) {
+                println("AAAA Configure Artifactory using HttpHeaderCredentials and ARTIFACTORY_ACCESS_TOKEN (token found)")
+                authentication {
+                    credentials(HttpHeaderCredentials::class.java) {
+                        name = "Authorization"
+                        value = "Bearer " + token.get()
+                        println("AAAA value ${value?.substring(0, 15)}")
+                    }
                 }
+            } else {
+                println("AAAA No Artifactory credentials provided, no value for ARTIFACTORY_ACCESS_TOKEN")
             }
         }
     }
