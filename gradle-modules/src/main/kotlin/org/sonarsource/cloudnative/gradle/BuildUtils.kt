@@ -57,7 +57,8 @@ internal fun RepositoryHandler.repox(
             .orElse(providers.gradleProperty("artifactoryPassword"))
 
         if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
-            println("AAAA Configure Artifactory using username and password")
+            // This configuration is used on developer machines
+            println("Configure Artifactory using username and password")
             authentication {
                 credentials {
                     username = artifactoryUsername.get()
@@ -65,9 +66,10 @@ internal fun RepositoryHandler.repox(
                 }
             }
         } else {
+            // This configuration is used in GitHub Actions
             val token = providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN")
             if (token.isPresent) {
-                println("AAAA Configure Artifactory using HttpHeaderCredentials and ARTIFACTORY_ACCESS_TOKEN (token found)")
+                println("Configure Artifactory using HttpHeaderCredentials and ARTIFACTORY_ACCESS_TOKEN (token found)")
                 authentication {
                     add(create<HttpHeaderAuthentication>("header"))
                     credentials(HttpHeaderCredentials::class.java) {
@@ -76,7 +78,7 @@ internal fun RepositoryHandler.repox(
                     }
                 }
             } else {
-                println("AAAA No Artifactory credentials provided, no value for ARTIFACTORY_ACCESS_TOKEN")
+                println("No Artifactory credentials provided, no value for ARTIFACTORY_ACCESS_TOKEN")
             }
         }
     }
