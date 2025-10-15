@@ -49,8 +49,10 @@ internal fun RepositoryHandler.repox(
 
         // This authentication relies on env vars configured on Cirrus CI or on Gradle properties (`-P<prop>` flags or `gradle.properties` file)
         val artifactoryUsername = providers.environmentVariable("ARTIFACTORY_PRIVATE_USERNAME")
+            .orElse(providers.environmentVariable("ARTIFACTORY_USERNAME"))
             .orElse(providers.gradleProperty("artifactoryUsername"))
         val artifactoryPassword = providers.environmentVariable("ARTIFACTORY_PRIVATE_PASSWORD")
+            .orElse(providers.environmentVariable("ARTIFACTORY_ACCESS_TOKEN"))
             .orElse(providers.gradleProperty("artifactoryPassword"))
 
         if (artifactoryUsername.isPresent && artifactoryPassword.isPresent) {
