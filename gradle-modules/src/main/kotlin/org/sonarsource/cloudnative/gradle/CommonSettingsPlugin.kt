@@ -114,15 +114,14 @@ open class CommonSettingsPlugin
                     }
 
                     // See https://docs.github.com/en/actions/reference/workflows-and-actions/variables for GHA env vars reference
-                    tag(if (System.getenv("CI").isNullOrEmpty()) "local" else "CI")
+                    tag(if (isCI) "local" else "CI")
                     tag(System.getProperty("os.name"))
                     val branch = System.getenv("CIRRUS_BRANCH") ?: System.getenv("GITHUB_REF_NAME")
                     if (branch == "master") {
                         tag("master")
                     }
-                    val isPr = (
-                        System.getenv("CIRRUS_PR")?.isBlank() == false
-                    ).or(System.getenv("GITHUB_REF_NAME")?.endsWith("/merge") == true)
+                    val isPr = (System.getenv("CIRRUS_PR")?.isBlank() == false)
+                        .or(System.getenv("GITHUB_REF_NAME")?.endsWith("/merge") == true)
                     if (isPr) {
                         tag("PR")
                     }
@@ -134,8 +133,6 @@ open class CommonSettingsPlugin
                         null
                     }
                     value("PR", prNumber)
-                    // For GHA, there is no easy way to get the PR title solely from environment
-                    System.getenv("CIRRUS_PR_TITLE")?.let { value("PR Title", it) }
 
                     capture {
                         // `properties` task can log sensitive information, so we disable uploading of build logs for it
