@@ -60,7 +60,7 @@ if (isCi()) {
         description = "Compile the go code for the local system."
         group = "build"
 
-        inputs.property("GO_CROSS_COMPILE", isCrossCompile)
+        inputs.property("GO_CROSS_COMPILE", System.getenv("GO_CROSS_COMPILE"))
         inputs.files(allGoSourcesAndMakeScripts())
 
         outputs.dir(GO_BINARY_OUTPUT_DIR)
