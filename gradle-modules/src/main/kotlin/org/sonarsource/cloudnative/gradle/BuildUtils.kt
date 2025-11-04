@@ -89,43 +89,6 @@ fun enforceJarSize(
         throw GradleException("${file.path} size ($size) too large. Max is $maxSize")
     }
     logger.info("Artifact ${file.name} has size $size")
-
-    // Log biggest entries in the JAR
-    logBiggestJarEntries(file, logger)
-}
-
-fun logBiggestJarEntries(file: File, logger: Logger, topN: Int = 20) {
-    val jarEntries = mutableListOf<Pair<String, Long>>()
-    file.inputStream().use { input ->
-        JarInputStream(input).use { jarInput ->
-            for (jarEntry in generateSequence { jarInput.nextJarEntry }) {
-                if (!jarEntry.isDirectory) {
-                    jarEntries.add(jarEntry.name to jarEntry.size)
-                }
-            }
-        }
-    }
-
-    if (jarEntries.isEmpty()) {
-        return
-    }
-
-    jarEntries.sortByDescending { it.second }
-
-    logger.lifecycle("")
-    logger.lifecycle("=== Top $topN Biggest JAR Entries in ${file.name} ===")
-    jarEntries.take(topN).forEachIndexed { index, (name, size) ->
-        val sizeStr = formatSize(size)
-        logger.lifecycle("${index + 1}. $name : $sizeStr")
-    }
-}
-
-fun formatSize(bytes: Long): String {
-    return when {
-        bytes >= 1_000_000 -> String.format("%.2f MB", bytes / 1_000_000.0)
-        bytes >= 1_000 -> String.format("%.2f KB", bytes / 1_000.0)
-        else -> "$bytes B"
-    }
 }
 
 fun checkJarEntriesPathUniqueness(file: File) {
