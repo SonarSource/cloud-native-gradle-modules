@@ -20,7 +20,6 @@ import com.github.jk1.license.LicenseFileDetails
 import com.github.jk1.license.ModuleData
 import com.github.jk1.license.ProjectData
 import com.github.jk1.license.render.ReportRenderer
-import java.io.File
 import java.io.IOException
 import java.net.URISyntaxException
 import java.nio.file.Files
@@ -30,31 +29,29 @@ import java.nio.file.StandardOpenOption
 import java.util.ArrayList
 
 class AnalyzerLicensingPackagingRenderer(
-    private val buildOutputDir: String,
+    private val buildOutputDir: Path,
 ) : ReportRenderer {
     private var apacheLicenseFileName: String = "Apache-2.0.txt"
-
-    private var generatedLicenseResourcesDirectory: File? = null
-    private val licenseTitleToResourceFile: MutableMap<String, String> = HashMap()
-    private val librariesWithCustomBehavior: MutableSet<String>
+    private lateinit var generatedLicenseResourcesDirectory: Path
+    private val licenseTitleToResourceFile: Map<String, String> = buildMap {
+        put("Apache License, Version 2.0", apacheLicenseFileName)
+        put("Apache License Version 2.0", apacheLicenseFileName)
+        put("Apache 2", apacheLicenseFileName)
+        put("Apache-2.0", apacheLicenseFileName)
+        put("The Apache Software License, Version 2.0", apacheLicenseFileName)
+        put("BSD-3-Clause", "BSD-3.txt")
+        put("GNU LGPL 3", "GNU-LGPL-3.txt")
+        put("Go License", "Go.txt")
+    }
+    private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
+        "com.fasterxml.jackson.dataformat.jackson-dataformat-smile",
+        "com.fasterxml.jackson.dataformat.jackson-dataformat-yaml"
+    )
     private val exceptions: ArrayList<String> = ArrayList()
 
-    init {
-        licenseTitleToResourceFile["Apache License, Version 2.0"] = apacheLicenseFileName
-        licenseTitleToResourceFile["Apache License Version 2.0"] = apacheLicenseFileName
-        licenseTitleToResourceFile["Apache 2"] = apacheLicenseFileName
-        licenseTitleToResourceFile["Apache-2.0"] = apacheLicenseFileName
-        licenseTitleToResourceFile["The Apache Software License, Version 2.0"] = apacheLicenseFileName
-        licenseTitleToResourceFile["BSD-3-Clause"] = "BSD-3.txt"
-        licenseTitleToResourceFile["GNU LGPL 3"] = "GNU-LGPL-3.txt"
-        licenseTitleToResourceFile["Go License"] = "Go.txt"
-        librariesWithCustomBehavior = HashSet()
-        librariesWithCustomBehavior.add("com.fasterxml.jackson.dataformat.jackson-dataformat-smile")
-        librariesWithCustomBehavior.add("com.fasterxml.jackson.dataformat.jackson-dataformat-yaml")
-    }
-
+    // Generate license files for all dependencies in the licenses folder
     override fun render(data: ProjectData) {
-        generatedLicenseResourcesDirectory = File(buildOutputDir, "licenses")
+        generatedLicenseResourcesDirectory = buildOutputDir.resolve("licenses")
         try {
             generateDependencyFiles(data)
         } catch (e: Exception) {
@@ -73,6 +70,14 @@ class AnalyzerLicensingPackagingRenderer(
         }
     }
 
+    /**
+     * Generate a license file for a given dependency.
+     * First we try to copy the license file included in the dependency itself in `copyIncludedLicenseFromDependency`
+     * If there is no License file, or the dependency contains an unusable license file,
+     * we try to derive the license from the pom in `findLicenseIdentifierInPomAndCopyFromResources`.
+     * In this method we're looking for the identifier of the license, and we copy the corresponding license file from our resources.
+     * The mapping (license identifier to resource file) is derived from the map `licenseTitleToResourceFile`.
+     */
     @Throws(IOException::class, URISyntaxException::class)
     private fun generateDependencyFile(data: ModuleData) {
         val copyIncludedLicenseFile = copyIncludedLicenseFromDependency(data)
@@ -91,30 +96,26 @@ class AnalyzerLicensingPackagingRenderer(
 
     @Throws(IOException::class)
     private fun copyIncludedLicenseFromDependency(data: ModuleData): Status {
-        if (librariesWithCustomBehavior.contains("${data.group}.${data.name}")) {
+        if (dependenciesWithUnusableLicenseFileInside.contains("${data.group}.${data.name}")) {
             return Status.failure("Excluded copying license from dependency as it's not the right one.")
         }
 
-        val licenseFileDetails = data.licenseFiles.stream().findFirst().map { licenseFile ->
-            licenseFile.fileDetails.stream()
-                .filter { file: LicenseFileDetails -> file.file.contains("LICENSE") }
-                .findFirst().orElse(null)
-        }
+        val licenseFileDetails = data.licenseFiles.stream().flatMap { licenseFile -> licenseFile.fileDetails.stream() }
+            .filter { file: LicenseFileDetails -> file.file.contains("LICENSE") }
+            .findFirst()
 
         if (licenseFileDetails.isEmpty) {
             return Status.failure("No license file data found.")
         }
 
-        copyLicenseFile(data, Path.of(buildOutputDir, licenseFileDetails.get().file))
+        copyLicenseFile(data, buildOutputDir.resolve(licenseFileDetails.get().file))
         return Status.success
     }
 
     @Throws(IOException::class, URISyntaxException::class)
     private fun findLicenseIdentifierInPomAndCopyFromResources(data: ModuleData): Status {
-        val pomLicense = data.poms.stream().findFirst().map { pomData ->
-            pomData.licenses.stream()
-                .findFirst().orElse(null)
-        }
+        val pomLicense = data.poms.stream().flatMap { pomData -> pomData.licenses.stream() }
+            .findFirst()
 
         if (pomLicense.isEmpty) {
             return Status.failure("No license found in pom data.")
@@ -129,7 +130,7 @@ class AnalyzerLicensingPackagingRenderer(
         data: ModuleData,
         fileToCopy: Path,
     ): Status {
-        // Make sure the file uses Unix line endings
+        // Modify to use LF line endings
         val normalizedFile = Files.readAllLines(fileToCopy).joinToString("\n")
         Files.write(
             generateLicensePath(data),
@@ -153,7 +154,7 @@ class AnalyzerLicensingPackagingRenderer(
     }
 
     private fun generateLicensePath(data: ModuleData): Path =
-        Path.of(generatedLicenseResourcesDirectory!!.path, "${data.group}.${data.name}-LICENSE.txt")
+        generatedLicenseResourcesDirectory.resolve("${data.group}.${data.name}-LICENSE.txt")
 
     private data class Status(
         val success: Boolean,

@@ -18,6 +18,7 @@ import com.github.jk1.license.render.ReportRenderer
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
+import java.security.MessageDigest
 import org.sonarsource.cloudnative.gradle.AnalyzerLicensingPackagingRenderer
 
 plugins {
@@ -35,19 +36,18 @@ var buildLicenseReportDirectory = project.layout.buildDirectory.dir("reports/dep
 var buildLicenseOutputToCopyDir = buildLicenseReportDirectory.get().dir("licenses")
 var resourceLicenseDir = project.layout.projectDirectory.dir("src/main/resources/licenses")
 var resourceThirdPartyDir = resourceLicenseDir.dir("THIRD_PARTY_LICENSES")
-var sonarLicenseFile = project.layout.projectDirectory.dir("..").file("LICENSE.txt")
 
 licenseReport {
-    renderers = arrayOf<ReportRenderer>(AnalyzerLicensingPackagingRenderer(buildLicenseReportDirectory.get().asFile.path))
+    renderers = arrayOf<ReportRenderer>(AnalyzerLicensingPackagingRenderer(buildLicenseReportDirectory.get().asFile.toPath()))
 }
 
-tasks.named("build") {
+tasks.named("check") {
     dependsOn("validateLicenseFiles")
 }
 
 tasks.register("validateLicenseFiles") {
     description = "Validate that generated license files match the committed ones"
-    group = "build"
+    group = "validation"
     // generateLicenseReport is the task exposed by `com.github.jk1.dependency-license-report`
     dependsOn("generateLicenseReport")
 
@@ -89,13 +89,15 @@ tasks.named("generateLicenseReport") {
     }
 }
 
+// Requires LICENSE.txt to be present one level above the (project-)plugin directory
 tasks.register("generateLicenseResources") {
     description = "Copies generated license files to the resources directory"
     dependsOn("generateLicenseReport")
 
     doLast {
+        val sonarLicenseFile = project.layout.projectDirectory.asFile.parentFile.resolve("LICENSE.txt")
         Files.copy(
-            sonarLicenseFile.asFile.toPath(),
+            sonarLicenseFile.toPath(),
             resourceLicenseDir.file("LICENSE.txt").asFile.toPath(),
             StandardCopyOption.REPLACE_EXISTING
         )
@@ -152,8 +154,9 @@ fun areDirectoriesEqual(
             }
 
             // Full check: compare byte content
-            if (!file1.readBytes().contentEquals(file2.readBytes())) {
-                // I don't know if it would be faster to compare using checksums instead, but I guess we would need to read the whole file regardless
+            val checksum1 = getFileChecksum(file1)
+            val checksum2 = getFileChecksum(file2)
+            if (checksum1 != checksum2) {
                 logger.warn("File content mismatch: $relativePath")
                 return false
             }
@@ -165,6 +168,15 @@ fun areDirectoriesEqual(
         logger.error("An error occurred during comparison: ${e.message}")
         return false
     }
+}
+
+fun getFileChecksum(file: File): String {
+    val md = MessageDigest.getInstance("SHA-256")
+    val digestBytes = md.digest(file.readBytes())
+
+    // 4. Convert the byte array to a hexadecimal string
+    // "%02x" formats each byte as two lowercase hex digits
+    return digestBytes.joinToString("") { "%02x".format(it) }
 }
 
 fun copyDirectory(
