@@ -26,12 +26,11 @@ plugins {
 }
 
 /**
- * An empty build service to serve as a synchronization point.
- * Because `com.github.jk1.dependency-license-report` is not able to run in parallel with Gradle 9.0,
- * we force tasks to never run in parallel by configuring this service.
+ * This plugin is used for generating license files for third-party dependencies into the resources folder.
+ * It provides a validation task to ensure that the license files in the resource folder are up-to-date.
+ * It provides a task to regenerate the license files into the resources folder.
+ * This tasks expects the license of the analyzer to be present one level above the (project-)plugin directory.
  */
-abstract class NoParallelService : BuildService<BuildServiceParameters.None>
-
 var buildLicenseReportDirectory = project.layout.buildDirectory.dir("reports/dependency-license")
 var buildLicenseOutputToCopyDir = buildLicenseReportDirectory.get().dir("licenses")
 var resourceLicenseDir = project.layout.projectDirectory.dir("src/main/resources/licenses")
@@ -66,6 +65,13 @@ tasks.register("validateLicenseFiles") {
         }
     }
 }
+
+/**
+ * An empty build service to serve as a synchronization point.
+ * Because `com.github.jk1.dependency-license-report` is not able to run in parallel with Gradle 9.0,
+ * we force tasks to never run in parallel by configuring this service.
+ */
+abstract class NoParallelService : BuildService<BuildServiceParameters.None>
 
 // generateLicenseReport is the task exposed by `com.github.jk1.dependency-license-report`
 tasks.named("generateLicenseReport") {
