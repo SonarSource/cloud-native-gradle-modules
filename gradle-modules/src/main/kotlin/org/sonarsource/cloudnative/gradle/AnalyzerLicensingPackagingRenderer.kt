@@ -36,16 +36,20 @@ class AnalyzerLicensingPackagingRenderer(
     private val licenseTitleToResourceFile: Map<String, String> = buildMap {
         put("Apache License, Version 2.0", apacheLicenseFileName)
         put("Apache License Version 2.0", apacheLicenseFileName)
+        put("The Apache License, Version 2.0", apacheLicenseFileName)
         put("Apache 2", apacheLicenseFileName)
         put("Apache-2.0", apacheLicenseFileName)
         put("The Apache Software License, Version 2.0", apacheLicenseFileName)
         put("BSD-3-Clause", "BSD-3.txt")
+        put("BSD", "BSD-2.txt")
         put("GNU LGPL 3", "GNU-LGPL-3.txt")
         put("Go License", "Go.txt")
     }
     private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
         "com.fasterxml.jackson.dataformat.jackson-dataformat-smile",
-        "com.fasterxml.jackson.dataformat.jackson-dataformat-yaml"
+        "com.fasterxml.jackson.dataformat.jackson-dataformat-yaml",
+        "com.fasterxml.woodstox.woodstox-core",
+        "org.codehaus.woodstox.stax2-api"
     )
     private val exceptions: ArrayList<String> = ArrayList()
 
@@ -121,8 +125,7 @@ class AnalyzerLicensingPackagingRenderer(
             return Status.failure("No license found in pom data.")
         }
 
-        copyLicenseFromResources(data, pomLicense.get().name)
-        return Status.success
+        return copyLicenseFromResources(data, pomLicense.get().name)
     }
 
     @Throws(IOException::class)
@@ -147,6 +150,9 @@ class AnalyzerLicensingPackagingRenderer(
         licenseName: String,
     ): Status {
         val licenseResourceFileName = licenseTitleToResourceFile[licenseName]
+        if (licenseResourceFileName == null) {
+            return Status.failure("License file '$licenseName' could not be found.")
+        }
         val resourceAsStream = AnalyzerLicensingPackagingRenderer::class.java.getResourceAsStream("/licenses/$licenseResourceFileName")
             ?: throw IOException("Resource not found for license: $licenseName")
         Files.copy(resourceAsStream, generateLicensePath(data), StandardCopyOption.REPLACE_EXISTING)
