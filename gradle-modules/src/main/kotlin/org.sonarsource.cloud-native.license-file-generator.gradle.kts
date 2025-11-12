@@ -102,6 +102,7 @@ tasks.register("generateLicenseResources") {
 
     doLast {
         val sonarLicenseFile = project.layout.projectDirectory.asFile.parentFile.resolve("LICENSE.txt")
+        Files.createDirectories(resourceLicenseDir.asFile.toPath())
         Files.copy(
             sonarLicenseFile.toPath(),
             resourceLicenseDir.file("LICENSE.txt").asFile.toPath(),
