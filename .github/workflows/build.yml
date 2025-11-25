@@ -27,11 +27,8 @@ jobs:
           version: 2025.7.12
           tool_versions: |
             java 17.0
-      - uses: SonarSource/ci-github-actions/build-gradle@v1
-        with:
-          public: true
-          deploy-pull-request: false
-          skip-tests: false
-          use-develocity: true
-          gradle-args: "--build-cache -x sonar"
-          disable-caching: true
+      # The SonarSource/ci-github-actions/build-gradle fails because of no access to ARTIFACTORY_DEPLOY_USERNAME
+      # it is not needed in this case, so the Gradle is called directly
+      - name: Build with Gradle
+        run: |
+          ./gradlew build
