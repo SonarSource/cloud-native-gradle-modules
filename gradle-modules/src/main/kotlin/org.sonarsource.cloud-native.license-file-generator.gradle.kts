@@ -26,7 +26,7 @@ plugins {
 }
 
 /**
- * This plugin is used for generating license files for third-party dependencies into the resources folder.
+ * This plugin is used for generating license files for third-party runtime-dependencies into the resources folder.
  * It provides a validation task to ensure that the license files in the resource folder are up-to-date.
  * It provides a task to regenerate the license files into the resources folder.
  * This tasks expects the license of the analyzer to be present one level above the (project-)plugin directory.

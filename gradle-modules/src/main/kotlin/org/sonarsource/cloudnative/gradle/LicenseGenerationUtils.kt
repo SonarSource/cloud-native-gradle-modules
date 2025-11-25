@@ -24,7 +24,7 @@ import org.gradle.api.logging.Logger
 
 /**
  * Compares two directories recursively to check for equality.
- * * Two directories are considered equal if they have the exact same
+ * Two directories are considered equal if they have the exact same
  * directory structure and all corresponding files have identical content.
  *
  * @param dir1 The first directory.
