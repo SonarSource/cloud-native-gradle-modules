@@ -38,6 +38,6 @@ jobs:
       # it is not needed in this case, so the Gradle is called directly
       - name: Build with Gradle
         env:
-          DEVELOCITY_ACCESS_KEY: develocity.sonar.build=${{ fromJSON(steps.secrets.outputs.vault).DEVELOCITY_TOKEN }}
+          DEVELOCITY_ACCESS_KEY: develocity-public.sonar.build=${{ fromJSON(steps.secrets.outputs.vault).DEVELOCITY_TOKEN }}
         run: |
           ./gradlew build
