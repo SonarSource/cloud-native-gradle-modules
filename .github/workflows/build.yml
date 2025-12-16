@@ -58,3 +58,4 @@ jobs:
           deploy: false
           use-develocity: true
           artifactory-reader-role: private-reader
+          disable-caching: 'true'

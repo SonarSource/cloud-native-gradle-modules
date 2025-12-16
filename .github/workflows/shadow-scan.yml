@@ -51,6 +51,7 @@ jobs:
           run-shadow-scans: 'true'
           # Disable develocity for shadow scans
           gradle-args: --no-scan
+          disable-caching: 'true'
 
       - name: Run IRIS Analysis
         uses: SonarSource/unified-dogfooding-actions/run-iris@v1
