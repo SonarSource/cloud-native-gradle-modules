@@ -39,6 +39,7 @@ val licenseTitleToResourceFile: Map<String, String> = buildMap {
     put("The Apache Software License, Version 2.0", apacheLicenseFileName)
     put("BSD-3-Clause", "BSD-3.txt")
     put("BSD", "BSD-2.txt")
+    put("GWT Terms", apacheLicenseFileName) // See https://www.gwtproject.org/terms.html
     put("GNU LGPL 3", "GNU-LGPL-3.txt")
     put("Go License", "Go.txt")
     put("MIT License", "MIT.txt")
