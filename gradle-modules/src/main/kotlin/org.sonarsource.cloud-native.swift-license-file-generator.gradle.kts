@@ -56,68 +56,6 @@ data class SwiftPackageDep(
     val path: String,
 )
 
-/**
- * Runs `swift package show-dependencies --format json` in the analyzer directory and parses the output
- * to extract non-dev dependency packages (all resolved packages, since Swift SPM dependencies
- * listed in Package.swift are used by production targets).
- *
- * Recursively flattens the dependency tree to include transitive dependencies.
- */
-fun parseNonDevPackages(analyzerDir: File): Set<SwiftPackageDep> {
-    val process = ProcessBuilder("swift", "package", "show-dependencies", "--format", "json")
-        .directory(analyzerDir)
-        .redirectErrorStream(false)
-        .start()
-    val output = process.inputStream.bufferedReader().readText()
-    val exitCode = process.waitFor()
-    if (exitCode != 0) {
-        val stderr = process.errorStream.bufferedReader().readText()
-        error("swift package show-dependencies failed with exit code $exitCode: $stderr")
-    }
-
-    val json = JsonSlurper().parseText(output) as? Map<*, *>
-        ?: error("Invalid output from swift package show-dependencies")
-
-    val packages = mutableSetOf<SwiftPackageDep>()
-    flattenDependencies(json, packages)
-    return packages
-}
-
-/**
- * Recursively extracts all dependencies from the JSON tree produced by
- * `swift package show-dependencies --format json`.
- */
-fun flattenDependencies(
-    node: Map<*, *>,
-    result: MutableSet<SwiftPackageDep>,
-) {
-    val deps = node["dependencies"] as? List<*> ?: return
-    for (dep in deps) {
-        val depMap = dep as? Map<*, *> ?: continue
-        val identity = depMap["identity"] as? String ?: continue
-        val name = depMap["name"] as? String ?: identity
-        val url = depMap["url"] as? String ?: ""
-        val path = depMap["path"] as? String ?: continue
-
-        result.add(SwiftPackageDep(identity, name, url, path))
-        flattenDependencies(depMap, result)
-    }
-}
-
-/**
- * Finds a LICENSE file in the given directory.
- * Looks for common license file names: LICENSE, LICENSE.md, LICENSE.txt, LICENCE, etc.
- */
-fun findLicenseFile(dir: File): File? {
-    if (!dir.isDirectory) return null
-    val candidates = listOf("LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE", "LICENCE.md", "LICENCE.txt")
-    for (candidate in candidates) {
-        val file = dir.resolve(candidate)
-        if (file.isFile) return file
-    }
-    return null
-}
-
 val collectSwiftLicenses = tasks.register("collectSwiftLicenses") {
     description = "Collects license files from Swift Package Manager dependencies"
     group = "licenses"
@@ -187,4 +125,66 @@ val generateSwiftLicenseResources = tasks.register("generateSwiftLicenseResource
         Files.createDirectories(destination.toPath())
         copyDirectory(generated, destination, logger)
     }
+}
+
+/**
+ * Runs `swift package show-dependencies --format json` in the analyzer directory and parses the output
+ * to extract non-dev dependency packages (all resolved packages, since Swift SPM dependencies
+ * listed in Package.swift are used by production targets).
+ *
+ * Recursively flattens the dependency tree to include transitive dependencies.
+ */
+fun parseNonDevPackages(analyzerDir: File): Set<SwiftPackageDep> {
+    val process = ProcessBuilder("swift", "package", "show-dependencies", "--format", "json")
+        .directory(analyzerDir)
+        .redirectErrorStream(false)
+        .start()
+    val output = process.inputStream.bufferedReader().readText()
+    val exitCode = process.waitFor()
+    if (exitCode != 0) {
+        val stderr = process.errorStream.bufferedReader().readText()
+        error("swift package show-dependencies failed with exit code $exitCode: $stderr")
+    }
+
+    val json = JsonSlurper().parseText(output) as? Map<*, *>
+        ?: error("Invalid output from swift package show-dependencies")
+
+    val packages = mutableSetOf<SwiftPackageDep>()
+    flattenDependencies(json, packages)
+    return packages
+}
+
+/**
+ * Recursively extracts all dependencies from the JSON tree produced by
+ * `swift package show-dependencies --format json`.
+ */
+fun flattenDependencies(
+    node: Map<*, *>,
+    result: MutableSet<SwiftPackageDep>,
+) {
+    val deps = node["dependencies"] as? List<*> ?: return
+    for (dep in deps) {
+        val depMap = dep as? Map<*, *> ?: continue
+        val identity = depMap["identity"] as? String ?: continue
+        val name = depMap["name"] as? String ?: identity
+        val url = depMap["url"] as? String ?: ""
+        val path = depMap["path"] as? String ?: continue
+
+        result.add(SwiftPackageDep(identity, name, url, path))
+        flattenDependencies(depMap, result)
+    }
+}
+
+/**
+ * Finds a LICENSE file in the given directory.
+ * Looks for common license file names: LICENSE, LICENSE.md, LICENSE.txt, LICENCE, etc.
+ */
+fun findLicenseFile(dir: File): File? {
+    if (!dir.isDirectory) return null
+    val candidates = listOf("LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE", "LICENCE.md", "LICENCE.txt")
+    for (candidate in candidates) {
+        val file = dir.resolve(candidate)
+        if (file.isFile) return file
+    }
+    return null
 }
