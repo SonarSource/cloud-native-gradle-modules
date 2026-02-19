@@ -76,6 +76,7 @@ abstract class NoParallelService : BuildService<BuildServiceParameters.None>
 
 // generateLicenseReport is the task exposed by `com.github.jk1.dependency-license-report`
 tasks.named("generateLicenseReport") {
+    group = "licenses"
     usesService(
         gradle.sharedServices.registerIfAbsent("noParallelProvider", NoParallelService::class) {
             // generateLicenseReport requires single threaded run with Gradle 9.0
@@ -99,6 +100,7 @@ tasks.named("generateLicenseReport") {
 // Requires LICENSE.txt to be present one level above the (project-)plugin directory
 tasks.register("generateLicenseResources") {
     description = "Copies generated license files to the resources directory"
+    group = "licenses"
     dependsOn("generateLicenseReport")
 
     doLast {
