@@ -50,75 +50,11 @@ dartLicenseConfig.analyzerDir.convention(
 
 val resourceLicenseDir = project.layout.projectDirectory.dir("src/main/resources/dart-licenses")
 
-/**
- * Runs `dart pub deps --no-dev --style=compact` in the analyzer directory and parses the output
- * to extract non-dev dependency package names.
- *
- * Output format has lines like: `- package_name 1.0.0 [dep1 dep2]`
- */
-fun parseNonDevPackages(analyzerDir: File): Set<String> {
-    val process = ProcessBuilder("dart", "pub", "deps", "--no-dev", "--style=compact")
-        .directory(analyzerDir)
-        .redirectErrorStream(false)
-        .start()
-    val output = process.inputStream.bufferedReader().readText()
-    val exitCode = process.waitFor()
-    if (exitCode != 0) {
-        val stderr = process.errorStream.bufferedReader().readText()
-        error("dart pub deps failed with exit code $exitCode: $stderr")
-    }
-
-    val packageLineRegex = Regex("^- (\\S+) .+$")
-    return output.lineSequence()
-        .mapNotNull { packageLineRegex.find(it)?.groupValues?.get(1) }
-        .toSet()
-}
-
-/**
- * Parses package_config.json to build a map of package name to its root directory.
- * Supports both absolute file:// URIs (hosted packages from pub.dev cache)
- * and relative paths (path-based/local packages).
- */
-fun parsePackageRoots(packageConfigFile: File): Map<String, File> {
-    val json = JsonSlurper().parse(packageConfigFile) as? Map<*, *>
-        ?: error("Invalid package_config.json: expected a JSON object")
-    val packages = json["packages"] as? List<*>
-        ?: error("Invalid package_config.json: missing 'packages' array")
-
-    val packageRoots = mutableMapOf<String, File>()
-    for (entry in packages) {
-        val pkg = entry as? Map<*, *> ?: continue
-        val name = pkg["name"] as? String ?: continue
-        val rootUri = pkg["rootUri"] as? String ?: continue
-
-        val rootDir = if (rootUri.startsWith("file://")) {
-            File(URI(rootUri))
-        } else {
-            packageConfigFile.parentFile.resolve(rootUri).canonicalFile
-        }
-        packageRoots[name] = rootDir
-    }
-    return packageRoots
-}
-
-/**
- * Finds a LICENSE file in the given directory.
- * Looks for common license file names: LICENSE, LICENSE.md, LICENSE.txt, LICENCE, etc.
- */
-fun findLicenseFile(dir: File): File? {
-    if (!dir.isDirectory) return null
-    val candidates = listOf("LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE", "LICENCE.md", "LICENCE.txt")
-    for (candidate in candidates) {
-        val file = dir.resolve(candidate)
-        if (file.isFile) return file
-    }
-    return null
-}
-
 val collectDartLicenses = tasks.register("collectDartLicenses") {
     description = "Collects license files from Dart pub.dev dependencies"
     group = "licenses"
-    dependsOn(":analyzer:dartPubGet")
+    var dartPubGetTasks = getTasksByName("dartPubGet", true)
+    dependsOn(dartPubGetTasks)
 
     doLast {
         val nonDevPackages = parseNonDevPackages(dartLicenseConfig.analyzerDir.get())
@@ -189,4 +125,69 @@ val generateDartLicenseResources = tasks.register("generateDartLicenseResources"
         Files.createDirectories(destination.toPath())
         copyDirectory(generated, destination, logger)
     }
+}
+
+/**
+ * Runs `dart pub deps --no-dev --style=compact` in the analyzer directory and parses the output
+ * to extract non-dev dependency package names.
+ *
+ * Output format has lines like: `- package_name 1.0.0 [dep1 dep2]`
+ */
+fun parseNonDevPackages(analyzerDir: File): Set<String> {
+    val process = ProcessBuilder("dart", "pub", "deps", "--no-dev", "--style=compact")
+        .directory(analyzerDir)
+        .redirectErrorStream(false)
+        .start()
+    val output = process.inputStream.bufferedReader().readText()
+    val exitCode = process.waitFor()
+    if (exitCode != 0) {
+        val stderr = process.errorStream.bufferedReader().readText()
+        error("dart pub deps failed with exit code $exitCode: $stderr")
+    }
+
+    val packageLineRegex = Regex("^- (\\S+) .+$")
+    return output.lineSequence()
+        .mapNotNull { packageLineRegex.find(it)?.groupValues?.get(1) }
+        .toSet()
+}
+
+/**
+ * Parses package_config.json to build a map of package name to its root directory.
+ * Supports both absolute file:// URIs (hosted packages from pub.dev cache)
+ * and relative paths (path-based/local packages).
+ */
+fun parsePackageRoots(packageConfigFile: File): Map<String, File> {
+    val json = JsonSlurper().parse(packageConfigFile) as? Map<*, *>
+        ?: error("Invalid package_config.json: expected a JSON object")
+    val packages = json["packages"] as? List<*>
+        ?: error("Invalid package_config.json: missing 'packages' array")
+
+    val packageRoots = mutableMapOf<String, File>()
+    for (entry in packages) {
+        val pkg = entry as? Map<*, *> ?: continue
+        val name = pkg["name"] as? String ?: continue
+        val rootUri = pkg["rootUri"] as? String ?: continue
+
+        val rootDir = if (rootUri.startsWith("file://")) {
+            File(URI(rootUri))
+        } else {
+            packageConfigFile.parentFile.resolve(rootUri).canonicalFile
+        }
+        packageRoots[name] = rootDir
+    }
+    return packageRoots
+}
+
+/**
+ * Finds a LICENSE file in the given directory.
+ * Looks for common license file names: LICENSE, LICENSE.md, LICENSE.txt, LICENCE, etc.
+ */
+fun findLicenseFile(dir: File): File? {
+    if (!dir.isDirectory) return null
+    val candidates = listOf("LICENSE", "LICENSE.md", "LICENSE.txt", "LICENCE", "LICENCE.md", "LICENCE.txt")
+    for (candidate in candidates) {
+        val file = dir.resolve(candidate)
+        if (file.isFile) return file
+    }
+    return null
 }
