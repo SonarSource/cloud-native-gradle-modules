@@ -1,12 +1,12 @@
 [versions]
-spotless-gradle = "8.1.0"
+spotless-gradle = "8.2.1"
 blowdryer-gradle = "1.7.1"
 develocity = "4.0.3"
-jackson = "2.20.1"
+jackson = "2.21.0"
 jfrog-gradle = "6.0.4"
 gradle-plugin-shadow = "9.3.1"
-gradle-license-report = "3.0.1"
-sonar-scanner-gradle = "7.1.0.6387"
+gradle-license-report = "3.1.1"
+sonar-scanner-gradle = "7.2.2.6593"
 
 [libraries]
 diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless-gradle" }
