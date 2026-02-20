@@ -127,6 +127,14 @@ val generateDartLicenseResources = tasks.register("generateDartLicenseResources"
     }
 }
 
+tasks.named("validateLicenseFiles") {
+    dependsOn(validateDartLicenses)
+}
+
+tasks.named("generateLicenseResources") {
+    dependsOn(generateDartLicenseResources)
+}
+
 /**
  * Runs `dart pub deps --no-dev --style=compact` in the analyzer directory and parses the output
  * to extract non-dev dependency package names.

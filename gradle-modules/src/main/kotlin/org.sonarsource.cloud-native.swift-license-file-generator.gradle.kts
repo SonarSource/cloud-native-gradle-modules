@@ -127,6 +127,14 @@ val generateSwiftLicenseResources = tasks.register("generateSwiftLicenseResource
     }
 }
 
+tasks.named("validateLicenseFiles") {
+    dependsOn(validateSwiftLicenses)
+}
+
+tasks.named("generateLicenseResources") {
+    dependsOn(generateSwiftLicenseResources)
+}
+
 /**
  * Runs `swift package show-dependencies --format json` in the analyzer directory and parses the output
  * to extract non-dev dependency packages (all resolved packages, since Swift SPM dependencies
