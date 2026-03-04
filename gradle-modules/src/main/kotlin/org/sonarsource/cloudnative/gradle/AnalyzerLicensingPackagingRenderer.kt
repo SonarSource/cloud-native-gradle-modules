@@ -46,6 +46,7 @@ val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
     put("MIT", "MIT.txt")
     put("0BSD", "0BSD.txt")
     put("GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1", "lgpl-2.1.txt")
+    put("Bouncy Castle Licence", "MIT.txt")
 }
 
 class AnalyzerLicensingPackagingRenderer(
