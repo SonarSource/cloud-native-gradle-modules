@@ -29,7 +29,7 @@ import java.nio.file.StandardOpenOption
 import java.util.ArrayList
 
 private const val APACHE_LICENSE_FILE_NAME: String = "Apache-2.0.txt"
-private const val MIT_FILE_NAME = "MIT.txt"
+private const val MIT_FILE_NAME: String = "MIT.txt"
 
 val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
     put("Apache License, Version 2.0", APACHE_LICENSE_FILE_NAME)
