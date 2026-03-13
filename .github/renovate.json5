@@ -22,8 +22,7 @@
         "eclipse\\(\"(?<currentValue>[^\"]+)\"\\)"
       ],
       "depNameTemplate": "org.eclipse.platform:org.eclipse.platform",
-      "datasourceTemplate": "maven",
-      "extractVersion": "^(?<version>\\d+\\.\\d+)"
+      "datasourceTemplate": "maven"
     }
   ],
   "packageRules": [
@@ -37,6 +36,12 @@
       ],
       "groupName": "all non-major dependencies",
       "groupSlug": "all-minor-patch"
+    },
+    {
+      "matchPackageNames": [
+        "org.eclipse.platform:org.eclipse.platform"
+      ],
+      "extractVersion": "^(?<version>\\d+\\.\\d+)"
     },
     {
       "matchPackageNames": [
