@@ -9,11 +9,23 @@
   "rebaseWhen": "conflicted",
   "enabledManagers": [
     "gradle",
-    "gradle-wrapper"
+    "gradle-wrapper",
+    "regex"
   ],
   "gradle": {
     "enabled": true
   },
+  "regexManagers": [
+    {
+      "fileMatch": ["\\.gradle\\.kts$"],
+      "matchStrings": [
+        "eclipse\\(\"(?<currentValue>[^\"]+)\"\\)"
+      ],
+      "depNameTemplate": "org.eclipse.platform:org.eclipse.platform",
+      "datasourceTemplate": "maven",
+      "extractVersion": "^(?<version>\\d+\\.\\d+)"
+    }
+  ],
   "packageRules": [
     {
       "matchManagers": [
