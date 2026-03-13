@@ -58,10 +58,10 @@ class AnalyzerLicensingPackagingRenderer(
 ) : ReportRenderer {
     private lateinit var generatedLicenseResourcesDirectory: Path
     private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
-        "com.fasterxml.jackson.dataformat.jackson-dataformat-smile",
-        "com.fasterxml.jackson.dataformat.jackson-dataformat-yaml",
-        "com.fasterxml.woodstox.woodstox-core",
-        "org.codehaus.woodstox.stax2-api"
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-smile",
+        "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml",
+        "com.fasterxml.woodstox:woodstox-core",
+        "org.codehaus.woodstox:stax2-api"
     )
     private val exceptions: ArrayList<String> = ArrayList()
 
@@ -128,7 +128,7 @@ class AnalyzerLicensingPackagingRenderer(
 
     @Throws(IOException::class)
     private fun copyIncludedLicenseFromDependency(data: ModuleData): Status {
-        if (dependenciesWithUnusableLicenseFileInside.contains("${data.group}.${data.name}")) {
+        if (dependenciesWithUnusableLicenseFileInside.contains("${data.group}:${data.name}")) {
             return Status.failure("Excluded copying license from dependency as it's not the right one.")
         }
 
