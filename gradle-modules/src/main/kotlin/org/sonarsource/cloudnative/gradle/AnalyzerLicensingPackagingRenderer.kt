@@ -27,6 +27,7 @@ import java.nio.file.Path
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
 import java.util.ArrayList
+import org.gradle.api.provider.Provider
 
 private const val APACHE_LICENSE_FILE_NAME: String = "Apache-2.0.txt"
 private const val MIT_FILE_NAME: String = "MIT.txt"
@@ -53,6 +54,7 @@ val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
 
 class AnalyzerLicensingPackagingRenderer(
     private val buildOutputDir: Path,
+    private val dependencyLicenseOverrides: Provider<Map<String, java.io.File>>,
 ) : ReportRenderer {
     private lateinit var generatedLicenseResourcesDirectory: Path
     private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
@@ -94,6 +96,11 @@ class AnalyzerLicensingPackagingRenderer(
      */
     @Throws(IOException::class, URISyntaxException::class)
     private fun generateDependencyFile(data: ModuleData) {
+        val copyOverrideLicenseFile = copyOverriddenLicense(data)
+        if (copyOverrideLicenseFile.success) {
+            return
+        }
+
         val copyIncludedLicenseFile = copyIncludedLicenseFromDependency(data)
         if (copyIncludedLicenseFile.success) {
             return
@@ -104,8 +111,17 @@ class AnalyzerLicensingPackagingRenderer(
             return
         }
 
+        exceptions.add("${data.group}.${data.name}: ${copyOverrideLicenseFile.message}")
         exceptions.add("${data.group}.${data.name}: ${copyIncludedLicenseFile.message}")
         exceptions.add("${data.group}.${data.name}: ${copyFromResources.message}")
+    }
+
+    @Throws(IOException::class)
+    private fun copyOverriddenLicense(data: ModuleData): Status {
+        val dependencyKey = "${data.group}:${data.name}"
+        val overrideFile = dependencyLicenseOverrides.getOrElse(emptyMap())[dependencyKey]
+            ?: return Status.failure("No override configured.")
+        return copyLicenseFile(data, overrideFile.toPath())
     }
 
     @Throws(IOException::class)
@@ -161,8 +177,16 @@ class AnalyzerLicensingPackagingRenderer(
     ): Status {
         val licenseResourceFileName = LICENSE_TITLE_TO_RESOURCE_FILE[licenseName]
             ?: return Status.failure("License file '$licenseName' could not be found.")
-        val resourceAsStream = AnalyzerLicensingPackagingRenderer::class.java.getResourceAsStream("/licenses/$licenseResourceFileName")
-            ?: throw IOException("Resource not found for license: $licenseName")
+        return copyLicenseResourceByFileName(data, licenseResourceFileName)
+    }
+
+    @Throws(IOException::class)
+    private fun copyLicenseResourceByFileName(
+        data: ModuleData,
+        resourceFileName: String,
+    ): Status {
+        val resourceAsStream = AnalyzerLicensingPackagingRenderer::class.java.getResourceAsStream("/licenses/$resourceFileName")
+            ?: throw IOException("Resource not found for license: $resourceFileName")
         Files.copy(resourceAsStream, generateLicensePath(data), StandardCopyOption.REPLACE_EXISTING)
         return Status.success
     }
