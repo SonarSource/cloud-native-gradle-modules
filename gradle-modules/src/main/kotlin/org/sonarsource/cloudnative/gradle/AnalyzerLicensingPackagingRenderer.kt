@@ -53,18 +53,19 @@ val LICENSE_TITLE_TO_RESOURCE_FILE: Map<String, String> = buildMap {
     put("GNU LESSER GENERAL PUBLIC LICENSE, Version 2.1", "lgpl-2.1.txt")
 }
 
+val DEPENDENCY_TO_LICENSE_RESOURCE_FILE: Map<String, String> = mapOf(
+    "com.fasterxml.jackson.dataformat:jackson-dataformat-smile" to APACHE_LICENSE_FILE_NAME,
+    "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml" to APACHE_LICENSE_FILE_NAME,
+    "com.fasterxml.woodstox:woodstox-core" to APACHE_LICENSE_FILE_NAME,
+    "org.codehaus.woodstox:stax2-api" to "BSD-2.txt"
+)
+
 class AnalyzerLicensingPackagingRenderer(
     private val buildOutputDir: Path,
     private val dependencyLicenseOverrides: Provider<Map<String, java.io.File>>,
 ) : ReportRenderer {
     private val logger = Logging.getLogger(AnalyzerLicensingPackagingRenderer::class.java)
     private lateinit var generatedLicenseResourcesDirectory: Path
-    private val dependenciesWithUnusableLicenseFileInside: Set<String> = setOf(
-        "com.fasterxml.jackson.dataformat:jackson-dataformat-smile",
-        "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml",
-        "com.fasterxml.woodstox:woodstox-core",
-        "org.codehaus.woodstox:stax2-api"
-    )
     private val exceptions: ArrayList<String> = ArrayList()
 
     // Generate license files for all dependencies in the licenses folder
@@ -91,6 +92,7 @@ class AnalyzerLicensingPackagingRenderer(
     /**
      * Generate a license file for a given dependency.
      * First we try to copy a configured override in `copyOverriddenLicense`.
+     * If there is no project override, we try shared dependency-specific defaults in `copyDefaultOverriddenLicense`.
      * If there is no override, we try to copy the license file included in the dependency itself
      * in `copyIncludedLicenseFromDependency`.
      * If there is no included license file, or the dependency contains an unusable one,
@@ -105,6 +107,11 @@ class AnalyzerLicensingPackagingRenderer(
             return
         }
 
+        val copyDefaultOverrideLicenseFile = copyDefaultOverriddenLicense(data)
+        if (copyDefaultOverrideLicenseFile.success) {
+            return
+        }
+
         val copyIncludedLicenseFile = copyIncludedLicenseFromDependency(data)
         if (copyIncludedLicenseFile.success) {
             return
@@ -116,6 +123,7 @@ class AnalyzerLicensingPackagingRenderer(
         }
 
         exceptions.add("${data.group}.${data.name}: ${copyOverrideLicenseFile.message}")
+        exceptions.add("${data.group}.${data.name}: ${copyDefaultOverrideLicenseFile.message}")
         exceptions.add("${data.group}.${data.name}: ${copyIncludedLicenseFile.message}")
         exceptions.add("${data.group}.${data.name}: ${copyFromResources.message}")
     }
@@ -131,12 +139,18 @@ class AnalyzerLicensingPackagingRenderer(
     }
 
     @Throws(IOException::class)
+    private fun copyDefaultOverriddenLicense(data: ModuleData): Status {
+        val dependencyKey = "${data.group}:${data.name}"
+        val licenseResourceFileName = DEPENDENCY_TO_LICENSE_RESOURCE_FILE[dependencyKey]
+            ?: return Status.failure("No shared override configured.")
+        copyLicenseResourceByFileName(data, licenseResourceFileName)
+        logger.info("{}: used shared override '{}'", dependencyKey, licenseResourceFileName)
+        return Status.success
+    }
+
+    @Throws(IOException::class)
     private fun copyIncludedLicenseFromDependency(data: ModuleData): Status {
         val dependencyKey = "${data.group}:${data.name}"
-        if (dependenciesWithUnusableLicenseFileInside.contains(dependencyKey)) {
-            return Status.failure("Skipped packaged license because this dependency is on the unusable-license list.")
-        }
-
         val licenseFileDetails = data.licenseFiles.stream().flatMap { licenseFile -> licenseFile.fileDetails.stream() }
             .filter { file: LicenseFileDetails -> file.file.contains("LICENSE") }
             .findFirst()
