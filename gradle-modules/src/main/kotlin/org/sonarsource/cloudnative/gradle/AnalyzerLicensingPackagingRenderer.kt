@@ -88,11 +88,13 @@ class AnalyzerLicensingPackagingRenderer(
 
     /**
      * Generate a license file for a given dependency.
-     * First we try to copy the license file included in the dependency itself in `copyIncludedLicenseFromDependency`
-     * If there is no License file, or the dependency contains an unusable license file,
-     * we try to derive the license from the pom in `findLicenseIdentifierInPomAndCopyFromResources`.
-     * In this method we're looking for the identifier of the license, and we copy the corresponding license file from our resources.
-     * The mapping (license identifier to resource file) is derived from the map `licenseTitleToResourceFile`.
+     * First we try to copy a configured override in `copyOverriddenLicense`.
+     * If there is no override, we try to copy the license file included in the dependency itself
+     * in `copyIncludedLicenseFromDependency`.
+     * If there is no included license file, or the dependency contains an unusable one,
+     * we derive the license from the pom in `findLicenseIdentifierInPomAndCopyFromResources`.
+     * That method looks up the license identifier and copies the corresponding file from our resources,
+     * using the mapping defined in `LICENSE_TITLE_TO_RESOURCE_FILE`.
      */
     @Throws(IOException::class, URISyntaxException::class)
     private fun generateDependencyFile(data: ModuleData) {
