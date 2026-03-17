@@ -160,8 +160,11 @@ class AnalyzerLicensingPackagingRenderer(
         }
 
         copyLicenseFile(data, buildOutputDir.resolve(licenseFileDetails.get().file))
-        logger.info("For the dependency {}: copied packaged license from '{}'",
-            data.dependencyKey(), licenseFileDetails.get().file)
+        logger.info(
+            "For the dependency {}: copied packaged license from '{}'",
+            data.dependencyKey(),
+            licenseFileDetails.get().file
+        )
         return Status.success
     }
 
@@ -172,10 +175,14 @@ class AnalyzerLicensingPackagingRenderer(
             return Status.failure("No license found in pom data.")
         }
         val pomLicense = licenses[0]
-        if(licenses.size > 1) {
-            logger.warn("The dependency: {}: contains multiple licenses in pom data: [{}]. The '{}' was taken. " +
-                "Please review if it is the correct one, if not define it in licenseGenerationConfig.dependencyLicenseOverrides",
-                data.dependencyKey(), licenses.joinToString { it.name }, pomLicense.name)
+        if (licenses.size > 1) {
+            logger.warn(
+                "The dependency: {}: contains multiple licenses in pom data: [{}]. The '{}' was taken. " +
+                    "Please review if it is the correct one, if not define it in licenseGenerationConfig.dependencyLicenseOverrides",
+                data.dependencyKey(),
+                licenses.joinToString { it.name },
+                pomLicense.name
+            )
         }
 
         return copyLicenseFromResources(data, pomLicense.name)
