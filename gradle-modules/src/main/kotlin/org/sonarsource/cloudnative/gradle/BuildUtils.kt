@@ -39,7 +39,10 @@ fun isCi() = System.getenv("CI")?.equals("true") == true
 fun findExecutable(name: String): String {
     val pathSeparator = File.pathSeparator
     val executableExtensions = if (OperatingSystem.current().isWindows) listOf(".exe", ".cmd", ".bat", "") else listOf("")
-    val pathDirs = System.getenv("PATH")?.split(pathSeparator) ?: return name
+    val pathDirs = System.getenv("PATH")
+        ?.split(pathSeparator)
+        ?.filter { it.isNotBlank() }
+        ?: return name
     for (dir in pathDirs) {
         for (ext in executableExtensions) {
             val candidate = File(dir, "$name$ext")
@@ -120,7 +123,7 @@ fun checkJarEntriesPathUniqueness(file: File) {
 
 fun Project.commitHashProvider(ref: String = "HEAD") =
     providers.exec {
-        commandLine("git", "rev-parse", ref)
+        commandLine(findExecutable("git"), "rev-parse", ref)
     }.standardOutput.asText
 
 fun getPlatform(): String {
