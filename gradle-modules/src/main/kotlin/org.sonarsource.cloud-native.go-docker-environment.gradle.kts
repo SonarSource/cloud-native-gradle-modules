@@ -20,9 +20,9 @@ import org.sonarsource.cloudnative.gradle.GO_LICENSES_OUTPUT_DIR
 import org.sonarsource.cloudnative.gradle.GoBuild
 import org.sonarsource.cloudnative.gradle.allGoSourcesAndMakeScripts
 import org.sonarsource.cloudnative.gradle.crossCompileEnv
+import org.sonarsource.cloudnative.gradle.findExecutable
 import org.sonarsource.cloudnative.gradle.goLangCiLintVersion
 import org.sonarsource.cloudnative.gradle.goVersion
-import org.sonarsource.cloudnative.gradle.findExecutable
 import org.sonarsource.cloudnative.gradle.isCi
 
 val dockerExecutable = findExecutable("docker")
