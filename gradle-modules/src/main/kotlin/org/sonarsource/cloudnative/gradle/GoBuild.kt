@@ -82,5 +82,5 @@ fun convertLicenseHeaderToGoCommentStyle(inputFile: File): String {
     // drop(1) removes the first, dropLast(1) removes the last
     return lines.drop(1).dropLast(1).joinToString("\n") { line ->
         line.replace(" *", "//")
-    }
+    }.plus("\n\n")
 }
