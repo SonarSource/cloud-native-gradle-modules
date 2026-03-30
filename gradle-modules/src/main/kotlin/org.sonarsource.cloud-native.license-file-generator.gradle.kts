@@ -68,7 +68,7 @@ tasks.register("validateLicenseFiles") {
     dependsOn("generateLicenseReport")
 
     doLast {
-        val thirdPartyLicenseEquality = !areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)
+        val thirdPartyLicenseEquality = areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)
         val sonarLicenseFile = licenseGenerationConfig.projectLicenseFile.get()
         val sonarLicenseFileEquality =
             areFilesEqual(sonarLicenseFile, resourceLicenseDir.file("LICENSE.txt").asFile, File("LICENSE.txt"), logger)
