@@ -68,7 +68,7 @@ tasks.register("validateLicenseFiles") {
     dependsOn("generateLicenseReport")
 
     doLast {
-        val noThirdPartyLicenses = !resourceThirdPartyDir.asFile.exists()
+        val noThirdPartyLicenses = !resourceThirdPartyDir.asFile.exists() && (buildLicenseOutputToCopyDir.asFile.list()?.size == 0)
         // Projects that do not have third-party licenses cannot commit an empty third-party licenses folder.
         // As there are no third-party licenses to bundle, validation can simply bypass the equality check.
         val thirdPartyLicenseEquality =
