@@ -68,7 +68,11 @@ tasks.register("validateLicenseFiles") {
     dependsOn("generateLicenseReport")
 
     doLast {
-        val thirdPartyLicenseEquality = areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)
+        val noThirdPartyLicenses = !resourceThirdPartyDir.asFile.exists()
+        // Projects that do not have third-party licenses cannot commit an empty third-party licenses folder.
+        // As there are no third-party licenses to bundle, validation can simply bypass the equality check.
+        val thirdPartyLicenseEquality =
+            noThirdPartyLicenses || areDirectoriesEqual(buildLicenseOutputToCopyDir.asFile, resourceThirdPartyDir.asFile, logger)
         val sonarLicenseFile = licenseGenerationConfig.projectLicenseFile.get()
         val sonarLicenseFileEquality =
             areFilesEqual(sonarLicenseFile, resourceLicenseDir.file("LICENSE.txt").asFile, File("LICENSE.txt"), logger)
