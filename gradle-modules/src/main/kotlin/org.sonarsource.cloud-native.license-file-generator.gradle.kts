@@ -24,6 +24,7 @@ import org.sonarsource.cloudnative.gradle.areFilesEqual
 import org.sonarsource.cloudnative.gradle.copyDirectory
 
 plugins {
+    id("org.sonarsource.cloud-native.base")
     id("com.github.jk1.dependency-license-report")
 }
 
