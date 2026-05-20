@@ -12,6 +12,11 @@ indent_style = space
 [*.{py,star}]
 indent_size = 4
 
+[*.gradle.kts]
+# disable https://pinterest.github.io/ktlint/latest/rules/standard/#kdoc rule for gradle.kts files.
+# In case the LICENSE_HEADER file uses /** ... */ comment style it will not raise issue.
+ktlint_standard_kdoc = disabled
+
 [{*.kt,*.kts}]
 ij_continuation_indent_size = 4
 ij_kotlin_align_in_columns_case_branch = false
