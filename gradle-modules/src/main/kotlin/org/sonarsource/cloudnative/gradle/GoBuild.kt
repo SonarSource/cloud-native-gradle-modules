@@ -62,7 +62,7 @@ fun Project.allGoSourcesAndMakeScripts(): FileTree =
             "**/*.go",
             "**/go.mod",
             "**/go.sum",
-            "**/*.o",
+            "packages/**/*.o",
             "make.bat",
             "make.sh"
         )
