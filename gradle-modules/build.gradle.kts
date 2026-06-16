@@ -42,7 +42,6 @@ configurations.all {
     }
 }
 
-
 configurations.matching { it.name == "kotlinBouncyCastleConfiguration" }.configureEach {
     // Workaround for https://github.com/gradle/gradle/issues/35309.
     // When any of cloud-native Gradle plugins is applied in a project
