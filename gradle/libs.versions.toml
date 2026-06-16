@@ -5,6 +5,8 @@ gradle-license-report = "3.1.4"
 gradle-plugin-shadow = "9.4.2"
 jackson = "2.22.0"
 jfrog-gradle = "6.0.4"
+log4j = "2.26.0"
+plexus-utils = "4.0.3"
 sonar-scanner-gradle = "7.3.1.8318"
 spotless-gradle = "8.6.0"
 
@@ -15,6 +17,8 @@ diffplug-spotless = { module = "com.diffplug.spotless:spotless-plugin-gradle", v
 jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "jackson" }
 jfrog-buildinfo-gradle = { module = "org.jfrog.buildinfo:build-info-extractor-gradle", version.ref = "jfrog-gradle" }
 license-report = { module = "com.github.jk1:gradle-license-report", version.ref = "gradle-license-report" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+plexus-utils = { module = "org.codehaus.plexus:plexus-utils", version.ref = "plexus-utils" }
 shadow = { module = "com.gradleup.shadow:com.gradleup.shadow.gradle.plugin", version.ref = "gradle-plugin-shadow" }
 
 [plugins]
