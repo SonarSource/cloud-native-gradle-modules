@@ -60,7 +60,9 @@ spotless {
     }
     format("javaMisc") {
         target("src/**/package-info.java")
-        licenseHeaderFile(licenseHeaderFile, "@javax.annotation")
+        // SONARIAC-2308 - when all our repositories will migrate to JSpecify then it can be re-enabled.
+        // In the meantime the repositories should configure licenseHeaderFile
+//        licenseHeaderFile(licenseHeaderFile, "@javax.annotation")
     }
 }
 
