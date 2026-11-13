@@ -52,6 +52,12 @@ Optionally, run this command with `--global` to apply this configuration globall
 * A configuration `goBinaries` is created, and it can be used to depend on the Go binaries like
   `implementation(projects(":go-subprojcet", "goBinaries"))`
 
+## Generating rule metadata
+
+Apply `org.sonarsource.cloud-native.rule-api` and configure `ruleApi.languageToSonarpediaDirectory` to register per-language generation and update tasks.
+Docker Compose uses `DockerCompose` in that map and `DOCKER_COMPOSE` in `sonarpedia.json`.
+Each task runs from its configured sonarpedia directory.
+
 ## Generating license files for a plugin
 
 The `license-file-generator` plugin generates license files for third-party runtime dependencies and bundles them into the plugin's resources folder.
