@@ -44,7 +44,9 @@ abstract class RuleApiExtension(
  * Because rule-api requires exclusive access to `$HOME/.sonar/rule-api/rspec`, we force tasks to never run in parallel
  * by configuring this service.
  */
-abstract class RuleApiService : BuildService<BuildServiceParameters.None>
+abstract class RuleApiService : BuildService<BuildServiceParameters.None> {
+    override fun toString(): String = "RuleApiService"
+}
 
 fun Project.registerRuleApiUpdateTask(
     language: String,
