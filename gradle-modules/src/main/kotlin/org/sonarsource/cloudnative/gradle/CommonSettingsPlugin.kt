@@ -39,7 +39,7 @@ open class CommonSettingsPlugin
             settings.gradle.allprojects {
                 // this value is present on CI
                 val buildNumber: String? = System.getProperty("buildNumber")
-                val version = properties["version"] as String
+                val version = properties["version"].toString()
                 if (version.endsWith("-SNAPSHOT") && buildNumber != null) {
                     val versionSuffix = if (version.count { it == '.' } == 1) ".0.$buildNumber" else ".$buildNumber"
                     project.version = version.replace("-SNAPSHOT", versionSuffix).also {
